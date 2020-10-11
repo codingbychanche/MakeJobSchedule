@@ -1,0 +1,15 @@
+<resources>
+    <!-- Main -->
+    <string name="app_name">Einsatzplan</string>
+    <string name="description">Diese App konvertiert einen Einsatzplan in Kalendereinträge.</string>
+    <string name="start">1. Kalender lesen.</string>
+    <string name="create_entries">2. Termine übernehmen.</string>
+    <string name="lines_read">Zeilen gelesen</string>
+    <string name="lines_valid">Gültig</string>
+    <string name="lines_not_valid">Nicht gültige Zeilen</string>
+
+    <!-- Calendar row -->
+    <string name="add_to_calendar_text">Kalender Eintrag</string>
+    <string name="time_from_to">bis:</string>
+    <string name="time_designation">Uhr</string>
+</resources>
