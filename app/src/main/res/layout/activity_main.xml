@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-     android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="5dp"
     android:paddingRight="5dp"
@@ -82,6 +82,31 @@
         app:layout_constraintBottom_toBottomOf="@+id/constraintLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></ImageButton>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="411dp"
+        tools:layout_editor_absoluteY="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toRightOf="@+id/start">
+
+        <RadioButton
+            android:text="Alle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></RadioButton>
+
+        <RadioButton
+            android:text="Gültige"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></RadioButton>
+
+        <RadioButton
+            android:text="Ungültige"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></RadioButton>
+
+    </RadioGroup>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/job_schedule_list"

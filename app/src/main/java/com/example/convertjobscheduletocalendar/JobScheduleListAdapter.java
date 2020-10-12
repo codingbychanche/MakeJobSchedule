@@ -38,6 +38,10 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         resources=context.getResources();
     }
 
+    interface receieve {
+        void addToCalendarPressed(int position);
+    }
+
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -54,7 +58,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
     // Create new views (invoked by the layout manager)
     @Override
     public JobScheduleListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.job_schedule_row_view, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.job_schedule_row_view_1, parent, false);
         JobScheduleListAdapter.ViewHolder vh = new JobScheduleListAdapter.ViewHolder(v);
         return vh;
     }
@@ -84,7 +88,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
 
         // Set background color and options according to the status of the entry.
         final View backgroundView=holder.mView.findViewById(R.id.calendar_entry_view);
-        TextView addCalendarEntryView=backgroundView.findViewById(R.id.add_to_calendar);
+        final TextView addCalendarEntryView=backgroundView.findViewById(R.id.add_to_calendar);
 
         if (jobScheduleListData.get(position).isValidEntry) {
 
@@ -93,10 +97,11 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
             //@@
             addCalendarEntryView.setVisibility(View.VISIBLE);
 
+            // Buttons
             addCalendarEntryView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                   // todo Add action.....
+                   mainActivity.addToCalendarPressed(position);
                 }
             });
         }else {
