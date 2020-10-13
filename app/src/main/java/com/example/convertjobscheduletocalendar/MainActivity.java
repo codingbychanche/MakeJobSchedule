@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     public String appDir = "/Meine_Einsatzpläne";       // App's working dir..
 
     // File dialog tool
-    private String pathToCurrentCalendarFile=appDir;
+    private String pathToCurrentCalendarFile = appDir;
     private static final int ID_FILE_DIALOG = 1;
     private static final boolean OVERRIDE_LAST_PATH_VISITED = false;
 
@@ -47,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private RecyclerView.Adapter jobScheduleListAdapter;
     private RecyclerView.LayoutManager jobScheduleListLayoutManager;
     private List<CalendarEntry> jobScheduleListData = new ArrayList<>();
+
+    // UI
+    RadioButton selectAllView;
+    RadioButton selectValidView;
+    RadioButton selectInvalidView;
 
     // Misc
     private Context context;
@@ -66,6 +72,20 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         workingDir = Environment.getExternalStoragePublicDirectory(appDir);
         workingDir.mkdirs(); // Create dir, if it does not already exist
 
+        // UI
+        selectAllView = findViewById(R.id.select_all);
+        selectValidView = findViewById(R.id.select_valid);
+        selectInvalidView = findViewById(R.id.select_invalid);
+
+        selectAllView.toggle();
+
+        // Calendar list
+        jobScheduleListRecyclerView = (RecyclerView) findViewById(R.id.job_schedule_list);
+        jobScheduleListRecyclerView.setHasFixedSize(true);
+        jobScheduleListLayoutManager = new LinearLayoutManager(this);
+        jobScheduleListRecyclerView.setLayoutManager(jobScheduleListLayoutManager);
+        jobScheduleListAdapter = new JobScheduleListAdapter(jobScheduleListData, this, context);
+        jobScheduleListRecyclerView.setAdapter(jobScheduleListAdapter);
 
         // Was a calendar file opened previously?
         //
@@ -75,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         if (!readAndParseJobSchedule(pathToCurrentCalendarFile))
             openFileDialog();
+
+
     }
 
     /**
@@ -83,14 +105,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Calendar list
-        RecyclerView expensesListRecyclerView = (RecyclerView) findViewById(R.id.job_schedule_list);
-        expensesListRecyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager expensesListLayoutManager = new LinearLayoutManager(this);
-        expensesListRecyclerView.setLayoutManager(expensesListLayoutManager);
-        RecyclerView.Adapter expensesListAdapter = new JobScheduleListAdapter(jobScheduleListData, this, context);
-        expensesListRecyclerView.setAdapter(expensesListAdapter);
 
         // Read job schedule
         ImageButton startButtonView = findViewById(R.id.start);
@@ -101,6 +115,33 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 openFileDialog();
             }
         });
+
+        // Filter settings
+        selectAllView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+            }
+        });
+
+        selectInvalidView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+            }
+        });
+
+        selectValidView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+            }
+        });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -128,11 +169,14 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         if (resCode == RESULT_OK && reqCode == ID_FILE_DIALOG) {
             if (data.hasExtra("path")) {
 
+                String returnStatus = data.getExtras().getString(FileDialog.RETURN_STATUS);
                 String pathSelected = data.getExtras().getString("path");
-                if (!pathSelected.isEmpty())
-                    pathToCurrentCalendarFile = pathSelected;
 
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                Log.v("PATH_PATH",returnStatus);
+                if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED))
+                    pathToCurrentCalendarFile = pathSelected;
+               
+                    readAndParseJobSchedule(pathToCurrentCalendarFile);
             }
         }
     }
@@ -143,41 +187,55 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * @param position
      */
     @Override
-    public void addToCalendarPressed(int position){
+    public void addToCalendarPressed(int position) {
 
         // This code creates an event and will open the calendar app's save dialog.
         // Doing so is quite good practice and a suitable method if
         // one wants to add only one event....
         //
         // Source: {@link https://stackoverflow.com/questions/4373074/how-to-launch-android-calendar-application-using-intent-froyo}
+        int year = jobScheduleListData.get(position).getYear() + 2000;
+        int month = jobScheduleListData.get(position).getMonth();
+        int day = jobScheduleListData.get(position).getDay();
+        int startH = jobScheduleListData.get(position).getStartTimeHours();
+        int startM = jobScheduleListData.get(position).getStartTimeMinutes();
+        int endH = jobScheduleListData.get(position).getEndTimeHours();
+        int endM = jobScheduleListData.get(position).getEndTimeMinutes();
 
-        int year= Integer.valueOf(jobScheduleListData.get(position).getYear());
-        int month=Integer.valueOf(jobScheduleListData.get(position).getMonth());
-        int day=Integer.valueOf(jobScheduleListData.get(position).getDay());
-        int startH=Integer.valueOf(jobScheduleListData.get(position).getStartTimeHours());
-        int startM=Integer.valueOf(jobScheduleListData.get(position).getStartTimeMinutes());
-        int endH=Integer.valueOf(jobScheduleListData.get(position).getEndTimeHours());
-        int endM=Integer.valueOf(jobScheduleListData.get(position).getEndTimeMinutes());
+        if (endH == 0 && endM == 0) {
+            endH = 23;
+            endM = 59;
+        }
 
-        String courseNumber=jobScheduleListData.get(position).getCourseNumber();
-        String location=jobScheduleListData.get(position).getLocation();
-        String vag=jobScheduleListData.get(position).getVagNumber();
-        String description=courseNumber+"  "+vag+"\n"+location;
+        String courseNumber = jobScheduleListData.get(position).getCourseNumber();
+        String location = jobScheduleListData.get(position).getLocation();
+        String vag = jobScheduleListData.get(position).getVagNumber();
+        String description = courseNumber + "  " + vag + "\n" + location;
 
         Calendar cal = Calendar.getInstance();
         Calendar beginTime = Calendar.getInstance();
-        beginTime.set(year, month, day, startH, startM);
+        beginTime.set(year, month - 1, day, startH, startM);
         Long startMillis = beginTime.getTimeInMillis();
         Calendar endTime = Calendar.getInstance();
-        endTime.set(year, month, day, endH, endM);
+        endTime.set(year, month - 1, day, endH, endM);
         Long endMillis = endTime.getTimeInMillis();
 
         Intent intent = new Intent(Intent.ACTION_EDIT);
         intent.setType("vnd.android.cursor.item/event");
-        intent.putExtra("beginTime", cal.getTimeInMillis());
-        intent.putExtra("allDay", true);
+        intent.putExtra("beginTime", startMillis);
+
+        // todo: Check {@link ClendarMaker}. Should return a prober description if
+        // no start and end time where set....
+        //
+        // All day event if start time is 0:00, we assme that in this case
+        // for this event no time was set. Convert to all day event:
+        if (startH == 0 && endH == 23) {
+            intent.putExtra("allDay", true);
+        } else
+            intent.putExtra("allDay", false);
+
         //intent.putExtra("rrule", "FREQ=YEARLY");
-        intent.putExtra("endTime", cal.getTimeInMillis()+60*60*1000);
+        intent.putExtra("endTime", endMillis);
         intent.putExtra("title", description);
         startActivity(intent);
     }
@@ -189,6 +247,9 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * @return True is the file could be read, false if there was an i/o error...
      */
     private boolean readAndParseJobSchedule(String pathToCurrentCalendarFile) {
+
+        jobScheduleListData.clear();
+        jobScheduleListAdapter.notifyDataSetChanged();
 
         List<CalendarEntry> calendar = new ArrayList();
         MakeCalendar myCalendar = new MakeCalendar(pathToCurrentCalendarFile);
@@ -207,10 +268,25 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             return false;
         } else {
             for (CalendarEntry e : calendar) {
-                //if (e.isValidEntry)
-                jobScheduleListData.add(e);
+
+                if (selectAllView.isChecked()) {
+                    jobScheduleListData.add(e);
+                    Log.v("LIST_LIST ",""+e);
+                }
+
+                if (selectValidView.isChecked()) {
+                    if (e.isValidEntry)
+                        jobScheduleListData.add(e);
+                }
+
+                if (selectInvalidView.isChecked()) {
+                    if (!e.isValidEntry)
+                        jobScheduleListData.add(e);
+                }
             }
         }
+        jobScheduleListAdapter.notifyDataSetChanged();
+
         return true;
     }
 

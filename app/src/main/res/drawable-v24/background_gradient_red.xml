@@ -24,7 +24,7 @@
         android:width="100dp" />
 
     <gradient
-        android:startColor="#F4D9D9"
+        android:startColor="#F8F0F0"
         android:endColor="#FAC9CF"
         android:angle="45"
         android:type="linear"/>

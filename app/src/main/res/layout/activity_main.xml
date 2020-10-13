@@ -78,7 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:src="@android:drawable/ic_menu_revert"
+        android:src="@android:drawable/ic_menu_my_calendar"
         app:layout_constraintBottom_toBottomOf="@+id/constraintLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></ImageButton>
@@ -92,16 +92,19 @@
         app:layout_constraintLeft_toRightOf="@+id/start">
 
         <RadioButton
+            android:id="@+id/select_all"
             android:text="Alle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"></RadioButton>
 
         <RadioButton
+            android:id="@+id/select_valid"
             android:text="Gültige"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"></RadioButton>
 
         <RadioButton
+            android:id="@+id/select_invalid"
             android:text="Ungültige"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"></RadioButton>
