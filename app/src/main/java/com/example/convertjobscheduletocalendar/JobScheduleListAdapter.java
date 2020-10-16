@@ -40,6 +40,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
 
     interface receieve {
         void addToCalendarPressed(int position);
+        void addToEMail(int position);
     }
 
     // Provide a reference to the views for each data item
@@ -89,6 +90,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         // Set background color and options according to the status of the entry.
         final View backgroundView=holder.mView.findViewById(R.id.calendar_entry_view);
         final TextView addCalendarEntryView=backgroundView.findViewById(R.id.add_to_calendar);
+        final TextView addToEMailView=backgroundView.findViewById(R.id.add_to_email);
 
         if (jobScheduleListData.get(position).isValidEntry) {
 
@@ -102,6 +104,13 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
                 @Override
                 public void onClick(View v) {
                    mainActivity.addToCalendarPressed(position);
+                }
+            });
+
+            addToEMailView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainActivity.addToEMail(position);
                 }
             });
         }else {

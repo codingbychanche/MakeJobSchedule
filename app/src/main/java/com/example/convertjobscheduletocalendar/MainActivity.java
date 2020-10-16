@@ -12,8 +12,11 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.File;
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     RadioButton selectAllView;
     RadioButton selectValidView;
     RadioButton selectInvalidView;
+    CheckBox showOnlyFutureEventsView;
 
     // Misc
     private Context context;
@@ -76,8 +80,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         selectAllView = findViewById(R.id.select_all);
         selectValidView = findViewById(R.id.select_valid);
         selectInvalidView = findViewById(R.id.select_invalid);
-
-        selectAllView.toggle();
+        showOnlyFutureEventsView = findViewById(R.id.show_only_future_events);
 
         // Calendar list
         jobScheduleListRecyclerView = (RecyclerView) findViewById(R.id.job_schedule_list);
@@ -96,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         if (!readAndParseJobSchedule(pathToCurrentCalendarFile))
             openFileDialog();
 
-
+        selectAllView.toggle();
+        readAndParseJobSchedule(pathToCurrentCalendarFile);
     }
 
     /**
@@ -137,6 +141,14 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 readAndParseJobSchedule(pathToCurrentCalendarFile);
             }
         });
+
+        // Show only future events?
+        showOnlyFutureEventsView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+            }
+        });
     }
 
     @Override
@@ -172,11 +184,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 String returnStatus = data.getExtras().getString(FileDialog.RETURN_STATUS);
                 String pathSelected = data.getExtras().getString("path");
 
-                Log.v("PATH_PATH",returnStatus);
+                Log.v("PATH_PATH", returnStatus);
                 if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED))
                     pathToCurrentCalendarFile = pathSelected;
-               
-                    readAndParseJobSchedule(pathToCurrentCalendarFile);
+
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
             }
         }
     }
@@ -212,10 +224,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         String vag = jobScheduleListData.get(position).getVagNumber();
         String description = courseNumber + "  " + vag + "\n" + location;
 
-        Calendar cal = Calendar.getInstance();
+        //@rem; Shows how a date can be converted to millisec's@@
         Calendar beginTime = Calendar.getInstance();
         beginTime.set(year, month - 1, day, startH, startM);
         Long startMillis = beginTime.getTimeInMillis();
+        //@@
         Calendar endTime = Calendar.getInstance();
         endTime.set(year, month - 1, day, endH, endM);
         Long endMillis = endTime.getTimeInMillis();
@@ -227,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // todo: Check {@link ClendarMaker}. Should return a prober description if
         // no start and end time where set....
         //
-        // All day event if start time is 0:00, we assme that in this case
+        // All day event if start time is 0:00, we assume that in this case
         // for this event no time was set. Convert to all day event:
         if (startH == 0 && endH == 23) {
             intent.putExtra("allDay", true);
@@ -238,6 +251,32 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         intent.putExtra("endTime", endMillis);
         intent.putExtra("title", description);
         startActivity(intent);
+    }
+
+    /**
+     * Add selected event to an e- mail.
+     *
+     * @param position
+     */
+
+    @Override
+    public void addToEMail(int position) {
+
+        String courseNumber = jobScheduleListData.get(position).getCourseNumber();
+        String vagNumber = jobScheduleListData.get(position).getVagNumber();
+        String message = jobScheduleListData.get(position).getOrgiriginalEntry();
+
+        String subject = "Anfrage zu:" + vagNumber + "//" + courseNumber;
+
+        Intent email = new Intent(Intent.ACTION_SEND);
+        email.putExtra(Intent.EXTRA_EMAIL, "");
+        email.putExtra(Intent.EXTRA_SUBJECT, subject);
+        email.putExtra(Intent.EXTRA_TEXT, message);
+
+        //need this to prompts email client only
+        email.setType("message/rfc822");
+
+        startActivity(Intent.createChooser(email, "Choose an Email client :"));
     }
 
     /**
@@ -264,30 +303,42 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         linesValidView.setText("" + myCalendar.getNumberOfLinesValid());
         linesNotValidView.setText("" + myCalendar.getNumberOfLinesNotValid());
 
+        long currentTimeInMillisec = System.currentTimeMillis();
+
         if (myCalendar.hasError()) {
             return false;
         } else {
             for (CalendarEntry e : calendar) {
 
-                if (selectAllView.isChecked()) {
-                    jobScheduleListData.add(e);
-                    Log.v("LIST_LIST ",""+e);
-                }
+                Long currentEventTimeInMillisec = e.getEventTimeInMillisec();
 
-                if (selectValidView.isChecked()) {
-                    if (e.isValidEntry)
-                        jobScheduleListData.add(e);
-                }
-
-                if (selectInvalidView.isChecked()) {
-                    if (!e.isValidEntry)
-                        jobScheduleListData.add(e);
-                }
+                if (showOnlyFutureEventsView.isChecked()) {
+                    if (currentEventTimeInMillisec > currentTimeInMillisec)
+                        addEvent(e);
+                } else
+                    addEvent(e);
             }
         }
         jobScheduleListAdapter.notifyDataSetChanged();
 
         return true;
+    }
+
+    private void addEvent(CalendarEntry e) {
+
+        if (selectAllView.isChecked()) {
+            jobScheduleListData.add(e);
+        }
+
+        if (selectValidView.isChecked()) {
+            if (e.isValidEntry)
+                jobScheduleListData.add(e);
+        }
+
+        if (selectInvalidView.isChecked()) {
+            if (!e.isValidEntry)
+                jobScheduleListData.add(e);
+        }
     }
 
     /**

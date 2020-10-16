@@ -10,6 +10,7 @@
 
     <!-- Calendar row -->
     <string name="add_to_calendar_text">Kalender Eintrag</string>
+    <string name="add_to_email">E- Mail Anfrage</string>
     <string name="time_from_to">bis:</string>
     <string name="time_designation">Uhr</string>
 </resources>
