@@ -8,12 +8,10 @@
     android:paddingRight="5dp"
     tools:context=".MainActivity">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorLightGrey"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:paddingBottom="5dp"
@@ -73,109 +71,106 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
-        android:id="@+id/start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:src="@android:drawable/ic_menu_my_calendar"
-        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></ImageButton>
-
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintLeft_toRightOf="@+id/start"
-        app:layout_constraintStart_toStartOf="@+id/start"
-        app:layout_constraintTop_toBottomOf="@+id/start">
-
-        <RadioButton
-            android:id="@+id/select_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Alle"></RadioButton>
-
-        <RadioButton
-            android:id="@+id/select_valid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gültige"></RadioButton>
-
-        <RadioButton
-            android:id="@+id/select_invalid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ungültige"></RadioButton>
-
-    </RadioGroup>
-
-    <CheckBox
-        android:id="@+id/show_only_future_events"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:text="Nur künftige"
-        app:layout_constraintStart_toStartOf="@+id/radioGroup"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup"></CheckBox>
-
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/horiz_line_2"
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@drawable/background_gradient_grey"
+        android:layout_height="wrap_content"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:paddingBottom="5dp"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:context=".MainActivity">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageButton
+            android:id="@+id/start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:src="@android:drawable/ic_menu_my_calendar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></ImageButton>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/job_schedule_list"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".5"
-        android:paddingTop="10dp"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/start"
-        app:layout_constraintTop_toBottomOf="@+id/show_only_future_events">
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toRightOf="@+id/start"
+            app:layout_constraintStart_toStartOf="@+id/start"
+            app:layout_constraintTop_toBottomOf="@+id/start">
 
-    </androidx.recyclerview.widget.RecyclerView>
+            <RadioButton
+                android:id="@+id/select_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Alle"></RadioButton>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/horiz_line"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@drawable/background_gradient_grey"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/start"
-        tools:context=".MainActivity"
-        tools:layout_editor_absoluteX="-7dp"></androidx.constraintlayout.widget.ConstraintLayout>
+            <RadioButton
+                android:id="@+id/select_valid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gültige"></RadioButton>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/horiz_line_1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@drawable/background_gradient_grey"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/show_only_future_events"
-        tools:context=".MainActivity"
-        tools:layout_editor_absoluteX="5dp">
+            <RadioButton
+                android:id="@+id/select_invalid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ungültige"></RadioButton>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </RadioGroup>
 
-    <!--
+
+        <CheckBox
+            android:id="@+id/show_only_future_events"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:text="Nur künftige"
+            app:layout_constraintStart_toStartOf="@+id/radioGroup"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup"></CheckBox>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/horiz_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/background_gradient_grey"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/start"
+            tools:context=".MainActivity"
+            tools:layout_editor_absoluteX="-7dp"></androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/horiz_line_1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/background_gradient_grey"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/show_only_future_events"
+            tools:context=".MainActivity"
+            tools:layout_editor_absoluteX="5dp">
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/horiz_line_2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/background_gradient_grey"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup"
+            tools:context=".MainActivity"
+            tools:layout_editor_absoluteX="5dp">
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
@@ -192,5 +187,21 @@
     </ScrollView>
     -->
 
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/job_schedule_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".5"
+        android:paddingTop="10dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

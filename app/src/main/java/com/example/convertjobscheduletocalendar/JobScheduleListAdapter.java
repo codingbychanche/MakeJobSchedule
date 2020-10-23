@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
@@ -19,6 +22,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 import CalendarMaker.CalendarEntry;
+import CalendarMaker.ConvertUmlaut;
 
 /**
  * Fills our job schedule list...
@@ -29,6 +33,9 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
     private MainActivity mainActivity;
     private Context context;
     private Resources resources;
+
+    //String [] dayOfWeek={"SO","MO","DI","MI","DO","FR","SA"};
+    int [] dayOfWeek={R.string.so,R.string.mo,R.string.di,R.string.mi,R.string.don,R.string.fr,R.string.sa};
 
     public JobScheduleListAdapter(List<CalendarEntry> jobScheduleListData, MainActivity mainActivity, Context context) {
         this.jobScheduleListData = jobScheduleListData;
@@ -67,6 +74,11 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+
+        TextView dayOfWeekView=holder.mView.findViewById(R.id.day_of_week);
+        int dayNameResourche=dayOfWeek [(jobScheduleListData.get(position).getDayOfWeekForThisDate())-1];
+        dayOfWeekView.setText(context.getString(dayNameResourche));
+
         TextView dateView = holder.mView.findViewById(R.id.date);
         TextView startTimeView=holder.mView.findViewById(R.id.start_time);
         TextView endTimeView=holder.mView.findViewById(R.id.end_time);
@@ -85,7 +97,11 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         typeView.setText(jobScheduleListData.get(position).getType());
         loctionView.setText(jobScheduleListData.get(position).getLocation());
         holidayView.setText(jobScheduleListData.get(position).getHoliday());
-        originalEntryView.setText(jobScheduleListData.get(position).getOrgiriginalEntry());
+
+
+        Spanned htmlString= Html.fromHtml(ConvertUmlaut.toHtml(jobScheduleListData.get(position).getOrgiriginalEntry()));
+        Log.v("HTML_HTML",ConvertUmlaut.toHtml(jobScheduleListData.get(position).getOrgiriginalEntry()));
+        originalEntryView.setText(htmlString);
 
         // Set background color and options according to the status of the entry.
         final View backgroundView=holder.mView.findViewById(R.id.calendar_entry_view);

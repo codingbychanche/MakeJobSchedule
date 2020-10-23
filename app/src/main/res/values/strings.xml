@@ -13,4 +13,13 @@
     <string name="add_to_email">E- Mail Anfrage</string>
     <string name="time_from_to">bis:</string>
     <string name="time_designation">Uhr</string>
+
+    <string name="so">SO</string>
+    <string name="mo">MO</string>
+    <string name="di">DI</string>
+    <string name="mi">MI</string>
+    <string name="don">DO</string>
+    <string name="fr">FR</string>
+    <string name="sa">SA</string>
+
 </resources>

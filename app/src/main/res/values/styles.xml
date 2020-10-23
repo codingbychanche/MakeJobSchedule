@@ -54,8 +54,6 @@
 
     <!-- Table rows -->
     <style name="TableRowsTitel" parent="TextAppearance.AppCompat">
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
               <item name="android:textStyle">bold</item>
         <item name="android:textSize">15dp</item>
     </style>
