@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.transition.Transition;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         selectAllView.toggle();
         readAndParseJobSchedule(pathToCurrentCalendarFile);
+        
     }
 
     /**

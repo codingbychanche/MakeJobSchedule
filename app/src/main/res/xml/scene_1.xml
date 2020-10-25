@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:motion="http://schemas.android.com/tools">
+
+    <Transition
+        android:id="@+id/trans1"
+        app:constraintSetEnd="@+id/end1"
+        app:constraintSetStart="@+id/start1">
+
+        <OnSwipe
+            app:touchAnchorId="@+id/job_schedule_list"
+            motion:autoTransition="animateToEnd"
+            app:onTouchUp="stop"
+            app:touchAnchorSide="top"
+            app:dragDirection="dragUp"
+            app:duration="20000"/>
+
+    </Transition>
+
+    <Transition
+        android:id="@+id/trans2"
+        app:constraintSetEnd="@+id/end2"
+        app:constraintSetStart="@+id/start2">
+
+        <OnSwipe
+            app:touchAnchorId="@+id/job_schedule_list"
+            motion:autoTransition="animateToEnd"
+            app:onTouchUp="stop"
+            app:touchAnchorSide="bottom"
+            app:dragDirection="dragDown"
+            app:duration="20000"/>
+
+    </Transition>
+
+
+    <ConstraintSet android:id="@+id/start1">
+        <Constraint
+            android:id="@+id/header"
+           />
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end1">
+        <Constraint
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/job_schedule_list" />
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/start2">
+        <Constraint
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/job_schedule_list" />
+    </ConstraintSet>
+
+
+    <ConstraintSet android:id="@+id/end2">
+
+        <Constraint
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/job_schedule_list" />
+    </ConstraintSet>
+
+</MotionScene>

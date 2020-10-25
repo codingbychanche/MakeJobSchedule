@@ -34,7 +34,6 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
     private Context context;
     private Resources resources;
 
-    //String [] dayOfWeek={"SO","MO","DI","MI","DO","FR","SA"};
     int [] dayOfWeek={R.string.so,R.string.mo,R.string.di,R.string.mi,R.string.don,R.string.fr,R.string.sa};
 
     public JobScheduleListAdapter(List<CalendarEntry> jobScheduleListData, MainActivity mainActivity, Context context) {
@@ -75,6 +74,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
+       String htmlString;
         TextView dayOfWeekView=holder.mView.findViewById(R.id.day_of_week);
         int dayNameResourche=dayOfWeek [(jobScheduleListData.get(position).getDayOfWeekForThisDate())-1];
         dayOfWeekView.setText(context.getString(dayNameResourche));
@@ -93,15 +93,15 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         startTimeView.setText(jobScheduleListData.get(position).getStartTime());
         endTimeView.setText(jobScheduleListData.get(position).getEndTime());
         vagNumberView.setText(jobScheduleListData.get(position).getVagNumber());
-        courseNumberView.setText(jobScheduleListData.get(position).getCourseNumber());
+
+        courseNumberView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(jobScheduleListData.get(position).getCourseNumber()), 0));
+
         typeView.setText(jobScheduleListData.get(position).getType());
-        loctionView.setText(jobScheduleListData.get(position).getLocation());
+        loctionView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(jobScheduleListData.get(position).getLocation()),0));
+
         holidayView.setText(jobScheduleListData.get(position).getHoliday());
 
-
-        Spanned htmlString= Html.fromHtml(ConvertUmlaut.toHtml(jobScheduleListData.get(position).getOrgiriginalEntry()));
-        Log.v("HTML_HTML",ConvertUmlaut.toHtml(jobScheduleListData.get(position).getOrgiriginalEntry()));
-        originalEntryView.setText(htmlString);
+        originalEntryView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(jobScheduleListData.get(position).getOrgiriginalEntry()), 0));
 
         // Set background color and options according to the status of the entry.
         final View backgroundView=holder.mView.findViewById(R.id.calendar_entry_view);
