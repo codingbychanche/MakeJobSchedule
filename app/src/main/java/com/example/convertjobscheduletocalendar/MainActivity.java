@@ -298,14 +298,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         calendar = myCalendar.getRawCalendar();
 
-        TextView linesReadView = findViewById(R.id.lines_read);
-        TextView linesValidView = findViewById(R.id.lines_valid);
-        TextView linesNotValidView = findViewById(R.id.lines_not_valid);
-
-        linesReadView.setText("" + myCalendar.getTotalNumberOfLinesRead());
-        linesValidView.setText("" + myCalendar.getNumberOfLinesValid());
-        linesNotValidView.setText("" + myCalendar.getNumberOfLinesNotValid());
-
         long currentTimeInMillisec = System.currentTimeMillis();
 
         if (myCalendar.hasError()) {
