@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.CalendarContract;
 import android.transition.Transition;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -103,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         selectAllView.toggle();
         readAndParseJobSchedule(pathToCurrentCalendarFile);
-        
     }
 
     /**
@@ -120,6 +121,17 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             public void onClick(View v) {
                 currentStateSaveToSharedPref(pathToCurrentCalendarFile);
                 openFileDialog();
+            }
+        });
+
+        // SHow info
+        ImageButton infoButtonView = findViewById(R.id.info);
+        infoButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentStateSaveToSharedPref(pathToCurrentCalendarFile);
+                Intent i = new Intent(MainActivity.this, InfoActivity.class);
+                startActivity(i);
             }
         });
 
@@ -225,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         String courseNumber = jobScheduleListData.get(position).getCourseNumber();
         String location = jobScheduleListData.get(position).getLocation();
         String vag = jobScheduleListData.get(position).getVagNumber();
-        String description = courseNumber + "  " + vag + "\n" + location;
+        String description = courseNumber + "  VAG:" + vag;
 
         //@rem; Shows how a date can be converted to millisec's@@
         Calendar beginTime = Calendar.getInstance();
@@ -239,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         Intent intent = new Intent(Intent.ACTION_EDIT);
         intent.setType("vnd.android.cursor.item/event");
         intent.putExtra("beginTime", startMillis);
+        intent.putExtra(CalendarContract.Events.EVENT_LOCATION,location);
 
         // todo: Check {@link ClendarMaker}. Should return a prober description if
         // no start and end time where set....
@@ -267,9 +280,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         String courseNumber = jobScheduleListData.get(position).getCourseNumber();
         String vagNumber = jobScheduleListData.get(position).getVagNumber();
+        String location= jobScheduleListData.get(position).getLocation();
         String message = jobScheduleListData.get(position).getOrgiriginalEntry();
+        String date = jobScheduleListData.get(position).getDate();
 
-        String subject = "Anfrage zu:" + vagNumber + "//" + courseNumber;
+        String subject = "Anfrage zu VAG:" + vagNumber + "//" + courseNumber+" in "+location+" am "+date;
 
         Intent email = new Intent(Intent.ACTION_SEND);
         email.putExtra(Intent.EXTRA_EMAIL, "");
@@ -341,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     private void openFileDialog() {
         Intent i = new Intent(MainActivity.this, FileDialog.class);
-        i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.SAVE_FILE);
+        i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.GET_FILE_NAME_AND_PATH);
         i.putExtra(FileDialog.OVERRIDE_LAST_PATH_VISITED, OVERRIDE_LAST_PATH_VISITED);
         startActivityForResult(i, ID_FILE_DIALOG);
     }

@@ -28,6 +28,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></ImageButton>
 
+        <ImageButton
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_dialog_info"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/start"></ImageButton>
+
         <RadioGroup
             android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
