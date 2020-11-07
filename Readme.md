@@ -4,8 +4,6 @@ Creates calendar entries for your devices calendar app from a plain text file co
 
 Browse through your job schedule.
 
-![](Guide.mp4)
-
 ![](shot_load_cal_mobile.png)
 
 Import your latest job schedule.
