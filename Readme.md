@@ -1,6 +1,6 @@
 Creates calendar entries for your devices calendar app from a plain text file containing event dates...
 
-![](shot_main_mobile.png)
+![](Shot1.png)
 
 Browse through your job schedule.
 
