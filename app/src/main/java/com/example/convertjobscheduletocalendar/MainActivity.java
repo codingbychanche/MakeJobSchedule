@@ -1,6 +1,8 @@
 package com.example.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
+import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +26,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -55,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private RecyclerView.Adapter jobScheduleListAdapter;
     private RecyclerView.LayoutManager jobScheduleListLayoutManager;
     private List<CalendarEntry> jobScheduleListData = new ArrayList<>();
+
+    // Async Task
+    JobScheduleListFiller task;
 
     // UI
     RadioButton selectAllView;
@@ -105,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         selectAllView.toggle();
         readAndParseJobSchedule(pathToCurrentCalendarFile);
+
+        getTodaysEvent();
     }
 
     /**
@@ -251,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         Intent intent = new Intent(Intent.ACTION_EDIT);
         intent.setType("vnd.android.cursor.item/event");
         intent.putExtra("beginTime", startMillis);
-        intent.putExtra(CalendarContract.Events.EVENT_LOCATION,location);
+        intent.putExtra(CalendarContract.Events.EVENT_LOCATION, location);
 
         // todo: Check {@link ClendarMaker}. Should return a prober description if
         // no start and end time where set....
@@ -263,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         } else
             intent.putExtra("allDay", false);
 
-        //intent.putExtra("rrule", "FREQ=YEARLY");
+        //intent.putExtra("rule", "FREQ=YEARLY");
         intent.putExtra("endTime", endMillis);
         intent.putExtra("title", description);
         startActivity(intent);
@@ -280,11 +288,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         String courseNumber = jobScheduleListData.get(position).getCourseNumber();
         String vagNumber = jobScheduleListData.get(position).getVagNumber();
-        String location= jobScheduleListData.get(position).getLocation();
+        String location = jobScheduleListData.get(position).getLocation();
         String message = jobScheduleListData.get(position).getOrgiriginalEntry();
         String date = jobScheduleListData.get(position).getDate();
 
-        String subject = "Anfrage zu VAG:" + vagNumber + "//" + courseNumber+" in "+location+" am "+date;
+        String subject = "Anfrage zu VAG:" + vagNumber + "//" + courseNumber + " in " + location + " am " + date;
 
         Intent email = new Intent(Intent.ACTION_SEND);
         email.putExtra(Intent.EXTRA_EMAIL, "");
@@ -318,15 +326,15 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         if (myCalendar.hasError()) {
             return false;
         } else {
-            for (CalendarEntry e : calendar) {
+            for (CalendarEntry calendarEntry : calendar) {
 
-                Long currentEventTimeInMillisec = e.getEventTimeInMillisec();
+                Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
 
                 if (showOnlyFutureEventsView.isChecked()) {
                     if (currentEventTimeInMillisec > currentTimeInMillisec)
-                        addEvent(e);
+                        addEvent(calendarEntry);
                 } else
-                    addEvent(e);
+                    addEvent(calendarEntry);
             }
         }
         jobScheduleListAdapter.notifyDataSetChanged();
@@ -334,20 +342,85 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         return true;
     }
 
-    private void addEvent(CalendarEntry e) {
+    /**
+     * Add a calendar entry to the calendar according
+     * to view options selected by the user
+     *
+     * @param calendarEntry
+     * @global jobScheduleListData  Holding calendar entries currently visible to the user.
+     */
+    private void addEvent(CalendarEntry calendarEntry) {
 
         if (selectAllView.isChecked()) {
-            jobScheduleListData.add(e);
+            jobScheduleListData.add(calendarEntry);
         }
 
         if (selectValidView.isChecked()) {
-            if (e.isValidEntry)
-                jobScheduleListData.add(e);
+            if (calendarEntry.isValidEntry)
+                jobScheduleListData.add(calendarEntry);
         }
 
         if (selectInvalidView.isChecked()) {
-            if (!e.isValidEntry)
-                jobScheduleListData.add(e);
+            if (!calendarEntry.isValidEntry)
+                jobScheduleListData.add(calendarEntry);
+        }
+    }
+
+    /**
+     * Show today's event permanently
+     */
+    private void getTodaysEvent() {
+
+        TextView dayOfWeekView = findViewById(R.id.day_of_week);
+        TextView dateView = findViewById(R.id.date);
+        TextView startTimeView = findViewById(R.id.start_time);
+        TextView endTimeView = findViewById(R.id.end_time);
+        TextView vagNumberView = findViewById(R.id.vag_number);
+        TextView courseNumberView = findViewById(R.id.course_number);
+        TextView loctionView = findViewById(R.id.location);
+        TextView typeView = findViewById(R.id.type);
+        TextView holidayView = findViewById(R.id.holiday_remark);
+
+        int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
+        int positionOfTodaysEvent = 0;
+
+        long currentTimeInMillisec = System.currentTimeMillis();
+        Calendar today = Calendar.getInstance();
+        today.setTimeInMillis(currentTimeInMillisec);
+
+        if (today.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY  && today.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+
+           // Lookup the current day and display it permanently
+            for (CalendarEntry entry : jobScheduleListData) {
+                if (entry.compareWith(today) == entry.IS_TODAY)
+                    break;
+                positionOfTodaysEvent++;
+            }
+
+            CalendarEntry todaysEvent = jobScheduleListData.get(positionOfTodaysEvent - 1);
+            int dayNameResourche = dayOfWeek[todaysEvent.getDayOfWeekForThisDate() - 1];
+
+            dayOfWeekView.setText(context.getString(dayNameResourche));
+
+            dateView.setText(todaysEvent.getDate());
+
+            startTimeView.setText(todaysEvent.getStartTime());
+
+            endTimeView.setText(todaysEvent.getEndTime());
+
+            vagNumberView.setText(todaysEvent.getVagNumber());
+
+            courseNumberView.setText(todaysEvent.getCourseNumber());
+
+            loctionView.setText(todaysEvent.getLocation());
+
+            typeView.setText(todaysEvent.getType());
+
+            holidayView.setText(todaysEvent.getHoliday());
+
+            // Current day is either saturday or sunday, happy news, stay in bed!
+        } else {
+            dayOfWeekView.setText("WE");
         }
     }
 

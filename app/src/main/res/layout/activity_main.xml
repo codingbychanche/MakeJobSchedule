@@ -10,9 +10,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header"
-        android:background="@drawable/background_gradient_grey"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="184dp"
+        android:background="@drawable/background_gradient_grey"
         android:elevation="1dp"
         android:paddingTop="10dp"
         android:paddingBottom="5dp"
@@ -87,6 +88,56 @@
             tools:context=".MainActivity"
             tools:layout_editor_absoluteX="-7dp"></androidx.constraintlayout.widget.ConstraintLayout>
 
+        <TextView
+            android:id="@+id/vag_number"
+            style="@style/TableRowsTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="vag_number"
+            app:layout_constraintStart_toEndOf="@+id/type"
+            app:layout_constraintTop_toTopOf="@+id/type"></TextView>
+
+        <TextView
+            android:id="@+id/course_number"
+            style="@style/TableRowsTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="course_number"
+            app:layout_constraintStart_toEndOf="@+id/vag_number"
+            app:layout_constraintTop_toTopOf="@+id/vag_number"></TextView>
+
+        <TextView
+            android:id="@+id/type"
+            style="@style/TableRowsTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="type"
+            app:layout_constraintStart_toEndOf="@+id/location"
+            app:layout_constraintTop_toTopOf="@+id/location"></TextView>
+
+        <TextView
+            android:id="@+id/location"
+            style="@style/TableRowsTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="locction"
+            app:layout_constraintStart_toStartOf="@+id/date"
+            app:layout_constraintTop_toBottomOf="@+id/date"></TextView>
+
+        <TextView
+            android:id="@+id/holiday_remark"
+            style="@style/TableRowsTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="holiday_remark"
+            app:layout_constraintStart_toEndOf="@+id/textView6"
+            app:layout_constraintTop_toTopOf="@+id/textView6"></TextView>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/horiz_line_1"
             android:layout_width="match_parent"
@@ -114,20 +165,86 @@
             tools:layout_editor_absoluteX="5dp">
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <TextView
+            android:id="@+id/textView2"
+            style="@style/ActivityTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/todays_event"
+            app:layout_constraintStart_toStartOf="@+id/show_only_future_events"
+            app:layout_constraintTop_toBottomOf="@+id/horiz_line_1" />
+
+        <TextView
+            android:id="@+id/day_of_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="DAY"
+            android:textSize="25dp"
+            app:layout_constraintStart_toStartOf="@+id/textView2"
+            app:layout_constraintTop_toTopOf="@+id/date"></TextView>
+
+        <TextView
+            android:id="@+id/date"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:hint="date"
+            app:layout_constraintStart_toEndOf="@+id/day_of_week"
+            app:layout_constraintTop_toBottomOf="@+id/textView2"></TextView>
+
+        <TextView
+            android:id="@+id/start_time"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="start"
+            app:layout_constraintStart_toEndOf="@+id/date"
+            app:layout_constraintTop_toTopOf="@+id/date"></TextView>
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/time_from_to"
+            app:layout_constraintStart_toEndOf="@+id/start_time"
+            app:layout_constraintTop_toTopOf="@+id/start_time"></TextView>
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/time_designation"
+            app:layout_constraintStart_toEndOf="@+id/end_time"
+            app:layout_constraintTop_toTopOf="@+id/end_time"></TextView>
+
+        <TextView
+            android:id="@+id/end_time"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="end"
+            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintTop_toTopOf="@+id/textView5"></TextView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/job_schedule_list"
-        android:paddingTop="10dp"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="8dp"
+        android:paddingTop="10dp"
         android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/header">
 
     </androidx.recyclerview.widget.RecyclerView>
