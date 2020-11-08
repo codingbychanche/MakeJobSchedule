@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * Show today's event permanently
+     * Get and show today's event permanently
      */
     private void getTodaysEvent() {
 
@@ -385,40 +385,37 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         int positionOfTodaysEvent = 0;
 
         long currentTimeInMillisec = System.currentTimeMillis();
-        Calendar today = Calendar.getInstance();
-        today.setTimeInMillis(currentTimeInMillisec);
+        Calendar todaysDate = Calendar.getInstance();
+        todaysDate.setTimeInMillis(currentTimeInMillisec);
 
-        if (today.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY  && today.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+        if (todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
 
-           // Lookup the current day and display it permanently
+            // Lookup the current day and display it permanently
             for (CalendarEntry entry : jobScheduleListData) {
-                if (entry.compareWith(today) == entry.IS_TODAY)
+                if (entry.compareThisEntrysDateWith(todaysDate) == entry.IS_TODAY && entry.isValidEntry) {
+
+                    int dayNameResourche = dayOfWeek[entry.getDayOfWeekForThisDate() - 1];
+                    dayOfWeekView.setText(context.getString(dayNameResourche));
+
+                    dateView.setText(entry.getDate());
+
+                    startTimeView.setText(entry.getStartTime());
+
+                    endTimeView.setText(entry.getEndTime());
+
+                    vagNumberView.setText(entry.getVagNumber());
+
+                    courseNumberView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(entry.getCourseNumber()), 0));
+
+                    loctionView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(entry.getLocation()), 0));
+
+                    typeView.setText(entry.getType());
+
+                    holidayView.setText(entry.getHoliday());
+
                     break;
-                positionOfTodaysEvent++;
+                }
             }
-
-            CalendarEntry todaysEvent = jobScheduleListData.get(positionOfTodaysEvent - 1);
-            int dayNameResourche = dayOfWeek[todaysEvent.getDayOfWeekForThisDate() - 1];
-
-            dayOfWeekView.setText(context.getString(dayNameResourche));
-
-            dateView.setText(todaysEvent.getDate());
-
-            startTimeView.setText(todaysEvent.getStartTime());
-
-            endTimeView.setText(todaysEvent.getEndTime());
-
-            vagNumberView.setText(todaysEvent.getVagNumber());
-
-            courseNumberView.setText(todaysEvent.getCourseNumber());
-
-            loctionView.setText(todaysEvent.getLocation());
-
-            typeView.setText(todaysEvent.getType());
-
-            holidayView.setText(todaysEvent.getHoliday());
-
-            // Current day is either saturday or sunday, happy news, stay in bed!
         } else {
             dayOfWeekView.setText("WE");
         }
@@ -451,7 +448,5 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         sharedPreferences = getPreferences(MODE_PRIVATE);
         int key1DeffaultValue = -1;
         return pathToCurrentCalendarFile = sharedPreferences.getString("pathToCurrentCalendarFile", "-");
-
     }
-
 }
