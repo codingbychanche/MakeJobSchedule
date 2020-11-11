@@ -76,7 +76,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="vag_number"
             app:layout_constraintStart_toEndOf="@+id/type"
             app:layout_constraintTop_toTopOf="@+id/type"></TextView>
 
@@ -86,7 +85,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="course_number"
             app:layout_constraintStart_toEndOf="@+id/vag_number"
             app:layout_constraintTop_toTopOf="@+id/vag_number"></TextView>
 
@@ -96,7 +94,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="type"
             app:layout_constraintStart_toEndOf="@+id/location"
             app:layout_constraintTop_toTopOf="@+id/location"></TextView>
 
@@ -106,7 +103,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="locction"
             app:layout_constraintStart_toStartOf="@+id/date"
             app:layout_constraintTop_toBottomOf="@+id/date"></TextView>
 
@@ -116,7 +112,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="holiday_remark"
             app:layout_constraintStart_toEndOf="@+id/textView6"
             app:layout_constraintTop_toTopOf="@+id/textView6"></TextView>
 
@@ -148,7 +143,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="DAY"
             android:textSize="25dp"
             app:layout_constraintStart_toStartOf="@+id/textView2"
             app:layout_constraintTop_toTopOf="@+id/date"></TextView>
@@ -160,7 +154,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:hint="date"
             app:layout_constraintStart_toEndOf="@+id/day_of_week"
             app:layout_constraintTop_toBottomOf="@+id/textView2"></TextView>
 
@@ -170,7 +163,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="start"
             app:layout_constraintStart_toEndOf="@+id/date"
             app:layout_constraintTop_toTopOf="@+id/date"></TextView>
 
@@ -198,7 +190,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:hint="end"
             app:layout_constraintStart_toEndOf="@+id/textView5"
             app:layout_constraintTop_toTopOf="@+id/textView5"></TextView>
     </androidx.constraintlayout.widget.ConstraintLayout>

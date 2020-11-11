@@ -362,13 +362,15 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
 
                 if (showOnlyFutureEventsView.isChecked()) {
-                    if (currentEventTimeInMillisec > currentTimeInMillisec)
+                    if (currentEventTimeInMillisec >= currentTimeInMillisec)
                         addEvent(calendarEntry);
                 } else
                     addEvent(calendarEntry);
             }
         }
         jobScheduleListAdapter.notifyDataSetChanged();
+
+        getTodaysEvent();
 
         return true;
     }
