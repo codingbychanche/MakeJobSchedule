@@ -71,6 +71,15 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     RadioButton selectValidView;
     RadioButton selectInvalidView;
     CheckBox showOnlyFutureEventsView;
+    TextView dayOfWeekView;
+    TextView dateView;
+    TextView startTimeView;
+    TextView endTimeView;
+    TextView vagNumberView;
+    TextView courseNumberView;
+    TextView loctionView;
+    TextView typeView;
+    TextView holidayView;
 
     // Misc
     private Context context;
@@ -95,6 +104,15 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         selectValidView = findViewById(R.id.select_valid);
         selectInvalidView = findViewById(R.id.select_invalid);
         showOnlyFutureEventsView = findViewById(R.id.show_only_future_events);
+        dayOfWeekView = findViewById(R.id.day_of_week);
+        dateView = findViewById(R.id.date);
+        startTimeView = findViewById(R.id.start_time);
+        endTimeView = findViewById(R.id.end_time);
+        vagNumberView = findViewById(R.id.vag_number);
+        courseNumberView = findViewById(R.id.course_number);
+        loctionView = findViewById(R.id.location);
+        typeView = findViewById(R.id.type);
+        holidayView = findViewById(R.id.holiday_remark);
 
         // Calendar list
         jobScheduleListRecyclerView = (RecyclerView) findViewById(R.id.job_schedule_list);
@@ -116,17 +134,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         selectAllView.toggle();
         readAndParseJobSchedule(pathToCurrentCalendarFile);
 
-        getTodaysEvent();
 
-        // @rem: Shows how to retrieve the version- name tag from the 'build.gradle'- file@@
-        try {
-            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            String version = pInfo.versionName;
-            Log.v("VERSIONVERSION",version);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        //@@
     }
 
     /**
@@ -136,28 +144,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     protected void onResume() {
         super.onResume();
 
-        /*
-        // Read job schedule
-        ImageButton startButtonView = findViewById(R.id.start);
-        startButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                currentStateSaveToSharedPref(pathToCurrentCalendarFile);
-                openFileDialog();
-            }
-        });
-
-        // SHow info
-        ImageButton infoButtonView = findViewById(R.id.info);
-        infoButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                currentStateSaveToSharedPref(pathToCurrentCalendarFile);
-                Intent i = new Intent(MainActivity.this, InfoActivity.class);
-                startActivity(i);
-            }
-        });
-         */
+        getTodaysEvent();
 
         // Filter settings
         selectAllView.setOnClickListener(new View.OnClickListener() {
@@ -227,17 +214,15 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             openFileDialog();
             return true;
         }
-
         if (id == R.id.info) {
             currentStateSaveToSharedPref(pathToCurrentCalendarFile);
             Intent i = new Intent(MainActivity.this, InfoActivity.class);
             startActivity(i);
             return true;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
+
     /**
      * File Dialog Tool callback.
      *
@@ -254,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 String returnStatus = data.getExtras().getString(FileDialog.RETURN_STATUS);
                 String pathSelected = data.getExtras().getString("path");
 
-                Log.v("PATH_PATH", returnStatus);
                 if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED))
                     pathToCurrentCalendarFile = pathSelected;
 
@@ -418,16 +402,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     private void getTodaysEvent() {
 
-        TextView dayOfWeekView = findViewById(R.id.day_of_week);
-        TextView dateView = findViewById(R.id.date);
-        TextView startTimeView = findViewById(R.id.start_time);
-        TextView endTimeView = findViewById(R.id.end_time);
-        TextView vagNumberView = findViewById(R.id.vag_number);
-        TextView courseNumberView = findViewById(R.id.course_number);
-        TextView loctionView = findViewById(R.id.location);
-        TextView typeView = findViewById(R.id.type);
-        TextView holidayView = findViewById(R.id.holiday_remark);
-
         int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
         int positionOfTodaysEvent = 0;
 
@@ -440,32 +414,41 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             // Lookup the current day and display it permanently
             for (CalendarEntry entry : jobScheduleListData) {
                 if (entry.compareThisEntrysDateWith(todaysDate) == entry.IS_TODAY && entry.isValidEntry) {
-
                     int dayNameResourche = dayOfWeek[entry.getDayOfWeekForThisDate() - 1];
                     dayOfWeekView.setText(context.getString(dayNameResourche));
-
                     dateView.setText(entry.getDate());
-
                     startTimeView.setText(entry.getStartTime());
-
                     endTimeView.setText(entry.getEndTime());
-
                     vagNumberView.setText(entry.getVagNumber());
-
                     courseNumberView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(entry.getCourseNumber()), 0));
-
                     loctionView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(entry.getLocation()), 0));
-
                     typeView.setText(entry.getType());
-
                     holidayView.setText(entry.getHoliday());
-
                     break;
+                } else {
+                    clearTodaysEventView();
                 }
+
             }
         } else {
             dayOfWeekView.setText("WE");
+            clearTodaysEventView();
         }
+    }
+
+    /**
+     * Clear views...
+     */
+    private void clearTodaysEventView() {
+        dayOfWeekView.setText("");
+        dateView.setText("");
+        startTimeView.setText("");
+        endTimeView.setText("");
+        vagNumberView.setText("");
+        courseNumberView.setText("");
+        loctionView.setText("");
+        typeView.setText("");
+        holidayView.setText("");
     }
 
     /**
@@ -476,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.GET_FILE_NAME_AND_PATH);
         i.putExtra(FileDialog.OVERRIDE_LAST_PATH_VISITED, OVERRIDE_LAST_PATH_VISITED);
-        Log.v("INTENTINTENT",""+i);
+        Log.v("INTENTINTENT", "" + i);
         startActivityForResult(i, ID_FILE_DIALOG);
     }
 

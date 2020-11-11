@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
@@ -8,14 +8,29 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     tools:context=".InfoActivity">
 
+    <TextView
+        android:id="@+id/version_name_tag_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:hint="Version_tag"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></TextView>
+
     <WebView
         android:id="@+id/browser"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </WebView>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/version_name_tag_display"
+        app:layout_constraintTop_toBottomOf="@+id/version_name_tag_display"></WebView>
+
     <ProgressBar
         android:id="@+id/html_load_progress"
-        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/browser"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

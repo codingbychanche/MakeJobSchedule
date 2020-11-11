@@ -2,12 +2,16 @@ package com.example.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +30,7 @@ public class InfoActivity extends AppCompatActivity {
 
     // Html
     private StringBuilder htmlSite;
+    private TextView versionNameTagView;
     private WebView webView;
     private ProgressBar progress;
 
@@ -36,6 +41,9 @@ public class InfoActivity extends AppCompatActivity {
 
         // UI
         final Handler handler = new Handler();
+        Context context = getApplicationContext();
+
+        versionNameTagView=findViewById(R.id.version_name_tag_display);
         webView = (WebView) findViewById(R.id.browser);
         progress = (ProgressBar) findViewById(R.id.html_load_progress);
 
@@ -43,6 +51,17 @@ public class InfoActivity extends AppCompatActivity {
         //final Locale current=getResources().getConfiguration().locale;
         final String current = getResources().getConfiguration().locale.getLanguage();
         Log.v("LOCALE", "Country:" + current);
+
+        // @rem: Shows how to retrieve the version- name tag from the 'build.gradle'- file@@
+        try {
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            String version = pInfo.versionName;
+            versionNameTagView.setText(version);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            versionNameTagView.setText("-");
+        }
+        //@@
 
         // Load html...
         progress.setVisibility(View.VISIBLE);
