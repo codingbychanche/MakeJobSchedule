@@ -1,38 +1,27 @@
 package com.example.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.text.HtmlCompat;
-import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.CalendarContract;
-import android.transition.Transition;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 
 import java.io.File;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -133,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         selectAllView.toggle();
         readAndParseJobSchedule(pathToCurrentCalendarFile);
-
-
     }
 
     /**
@@ -143,8 +130,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     @Override
     protected void onResume() {
         super.onResume();
-
-        getTodaysEvent();
 
         // Filter settings
         selectAllView.setOnClickListener(new View.OnClickListener() {
@@ -313,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      *
      * @param position
      */
-
     @Override
     public void addToEMail(int position) {
 
@@ -347,17 +331,20 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         jobScheduleListData.clear();
         jobScheduleListAdapter.notifyDataSetChanged();
 
-        List<CalendarEntry> calendar = new ArrayList();
+        List<CalendarEntry> rawCalendar = new ArrayList();
         MakeCalendar myCalendar = new MakeCalendar(pathToCurrentCalendarFile);
 
-        calendar = myCalendar.getRawCalendar();
+        // Get unsorted, unfiltered calendar
+        rawCalendar = myCalendar.getRawCalendar();
+
+        getAndShowTodaysEvent(rawCalendar);
 
         long currentTimeInMillisec = System.currentTimeMillis();
 
         if (myCalendar.hasError()) {
             return false;
         } else {
-            for (CalendarEntry calendarEntry : calendar) {
+            for (CalendarEntry calendarEntry : rawCalendar) {
 
                 Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
 
@@ -369,8 +356,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             }
         }
         jobScheduleListAdapter.notifyDataSetChanged();
-
-        getTodaysEvent();
 
         return true;
     }
@@ -402,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     /**
      * Get and show today's event permanently
      */
-    private void getTodaysEvent() {
+    private void getAndShowTodaysEvent(List <CalendarEntry> rawCalendar) {
 
         int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
         int positionOfTodaysEvent = 0;
@@ -414,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         if (todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
 
             // Lookup the current day and display it permanently
-            for (CalendarEntry entry : jobScheduleListData) {
+            for (CalendarEntry entry : rawCalendar) {
                 if (entry.compareThisEntrysDateWith(todaysDate) == entry.IS_TODAY && entry.isValidEntry) {
                     int dayNameResourche = dayOfWeek[entry.getDayOfWeekForThisDate() - 1];
                     dayOfWeekView.setText(context.getString(dayNameResourche));
@@ -428,9 +413,9 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                     holidayView.setText(entry.getHoliday());
                     break;
                 } else {
+                    // Nothing found, nothing to display
                     clearTodaysEventView();
                 }
-
             }
         } else {
             dayOfWeekView.setText("WE");
