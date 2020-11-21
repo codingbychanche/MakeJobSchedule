@@ -357,6 +357,10 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         }
         jobScheduleListAdapter.notifyDataSetChanged();
 
+        String revisionDate = myCalendar.getCalendarRevisionDate();
+        String revisionTime = myCalendar.getCalendarRevisionTime();
+        getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
+
         return true;
     }
 
@@ -387,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     /**
      * Get and show today's event permanently
      */
-    private void getAndShowTodaysEvent(List <CalendarEntry> rawCalendar) {
+    private void getAndShowTodaysEvent(List<CalendarEntry> rawCalendar) {
 
         int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
         int positionOfTodaysEvent = 0;
@@ -400,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
             // Lookup the current day and display it permanently
             for (CalendarEntry entry : rawCalendar) {
-                if (entry.compareThisEntrysDateWith(todaysDate) == entry.IS_TODAY && entry.isValidEntry) {
+                if (entry.compareThisEntrysDateWith(todaysDate) == entry.IS_NOT_TODAY_OR_WEEKEND && entry.isValidEntry) {
                     int dayNameResourche = dayOfWeek[entry.getDayOfWeekForThisDate() - 1];
                     dayOfWeekView.setText(context.getString(dayNameResourche));
                     dateView.setText(entry.getDate());
