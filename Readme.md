@@ -4,11 +4,13 @@ Creates calendar entries for your devices calendar app from a plain text file co
 
 Browse through your job schedule.
 
-![](shot_load_cal_mobile.png)
+![](Instructions/shot_load_cal_mobile.png)
 
 Import your latest job schedule.
 
-![](shot_add_to_cal_mobile.png)
+![](Instructions/shot_add_to_cal_mobile.png)
 
 Add selected events to your devices calendar app.
+
+
 
