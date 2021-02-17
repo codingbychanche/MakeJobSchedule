@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    app:layoutDescription="@xml/scene_1"
+    app:layoutDescription="@xml/scene_main_activity_animate_menu"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header"
@@ -16,12 +15,13 @@
         android:elevation="1dp"
         android:paddingTop="10dp"
         android:paddingBottom="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
         tools:context=".MainActivity">
 
         <RadioGroup
-            android:id="@+id/radioGroup"
+            android:id="@+id/radioGroupViewFilter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:text="Nur künftige"
-            app:layout_constraintStart_toStartOf="@+id/radioGroup"
+            app:layout_constraintStart_toStartOf="@+id/radioGroupViewFilter"
             app:layout_constraintTop_toBottomOf="@+id/horiz_line_2"></CheckBox>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -123,7 +123,7 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingBottom="5dp"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroupViewFilter"
             tools:context=".MainActivity"
             tools:layout_editor_absoluteX="5dp">
 

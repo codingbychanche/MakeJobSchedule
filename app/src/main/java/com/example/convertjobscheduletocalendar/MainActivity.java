@@ -2,6 +2,7 @@ package com.example.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,10 +15,10 @@ import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 
@@ -53,9 +54,14 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private RecyclerView jobScheduleListRecyclerView;
     private RecyclerView.Adapter jobScheduleListAdapter;
     private RecyclerView.LayoutManager jobScheduleListLayoutManager;
+
+    // Calendar data
     private List<CalendarEntry> jobScheduleListData = new ArrayList<>();
+    private MakeCalendar myCalendar;
 
     // UI
+    private MainActivityViewModel mainActivityViewModel;
+    RadioGroup radioGroupViewFilters;
     RadioButton selectAllView;
     RadioButton selectValidView;
     RadioButton selectInvalidView;
@@ -89,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         workingDir.mkdirs(); // Create dir, if it does not already exist
 
         // UI
+        radioGroupViewFilters = findViewById(R.id.radioGroupViewFilter);
         selectAllView = findViewById(R.id.select_all);
         selectValidView = findViewById(R.id.select_valid);
         selectInvalidView = findViewById(R.id.select_invalid);
@@ -102,6 +109,24 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         loctionView = findViewById(R.id.location);
         typeView = findViewById(R.id.type);
         holidayView = findViewById(R.id.holiday_remark);
+
+        // ViewModel
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+
+        // Filter settings
+        selectAllView.setChecked(mainActivityViewModel.getShowAllEvents());
+        selectInvalidView.setChecked(mainActivityViewModel.getShowInvalid());
+        selectValidView.setChecked(mainActivityViewModel.getShowValid());
+
+        //
+        // Update UI
+        //
+        //@rem: Shows how to check/ uncheck a checkbox programmatically@@
+        if (mainActivityViewModel.getIsShowOnlyFutureEvents())
+            showOnlyFutureEventsView.setChecked(true);
+        else
+            showOnlyFutureEventsView.setChecked(false);
+        //@@
 
         // Calendar list
         jobScheduleListRecyclerView = (RecyclerView) findViewById(R.id.job_schedule_list);
@@ -131,35 +156,113 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     protected void onResume() {
         super.onResume();
 
+        //
         // Filter settings
-        selectAllView.setOnClickListener(new View.OnClickListener() {
+        //
+        radioGroupViewFilters.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                mainActivityViewModel.setShowAllEvents(false);
+                mainActivityViewModel.setShowValid(false);
+                mainActivityViewModel.setShowInvalid(false);
+                switch (checkedId) {
+                    case R.id.select_all:
+                        mainActivityViewModel.setShowAllEvents(true);
+                        break;
+
+                    case R.id.select_invalid:
+                        mainActivityViewModel.setShowInvalid(true);
+                        break;
+
+                    case R.id.select_valid:
+                        mainActivityViewModel.setShowValid(true);
+                        break;
+                }
                 readAndParseJobSchedule(pathToCurrentCalendarFile);
+                jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
 
-        selectInvalidView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
-            }
-        });
-
-        selectValidView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
-            }
-        });
-
+        //
         // Show only future events?
+        //
         showOnlyFutureEventsView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mainActivityViewModel.setShowOnlyFutureEvents(isChecked);
                 readAndParseJobSchedule(pathToCurrentCalendarFile);
+                jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    /**
+     * Read and parse a job schedule file.
+     *
+     * @param pathToCurrentCalendarFile
+     * @return True is the file could be read, false if there was an i/o error...
+     */
+    private boolean readAndParseJobSchedule(String pathToCurrentCalendarFile) {
+
+        jobScheduleListData.clear();
+        jobScheduleListAdapter.notifyDataSetChanged();
+
+        List<CalendarEntry> rawCalendar = new ArrayList();
+        myCalendar = new MakeCalendar(pathToCurrentCalendarFile);
+
+        // Get unsorted, unfiltered calendar
+        rawCalendar = myCalendar.getRawCalendar();
+
+        getAndShowTodaysEvent(rawCalendar);
+
+        long currentTimeInMillisec = System.currentTimeMillis();
+
+        if (myCalendar.hasError()) {
+            return false;
+        } else {
+            for (CalendarEntry calendarEntry : rawCalendar) {
+
+                Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
+
+                if (showOnlyFutureEventsView.isChecked()) {
+                    if (currentEventTimeInMillisec >= currentTimeInMillisec)
+                        addEvent(calendarEntry);
+                } else
+                    addEvent(calendarEntry);
+            }
+        }
+        jobScheduleListAdapter.notifyDataSetChanged();
+
+        String revisionDate = myCalendar.getCalendarRevisionDate();
+        String revisionTime = myCalendar.getCalendarRevisionTime();
+        getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
+
+        return true;
+    }
+
+
+    /**
+     * Add a calendar entry to the calendar according
+     * to view options selected by the user
+     *
+     * @param calendarEntry
+     * @global jobScheduleListData  Holding calendar entries currently visible to the user.
+     */
+    private void addEvent(CalendarEntry calendarEntry) {
+
+        if (mainActivityViewModel.getShowAllEvents()) {
+            jobScheduleListData.add(calendarEntry);
+        }
+
+        if (mainActivityViewModel.getShowValid()) {
+            if (calendarEntry.isValidEntry)
+                jobScheduleListData.add(calendarEntry);
+        }
+
+        if (mainActivityViewModel.getShowInvalid()) {
+            if (!calendarEntry.isValidEntry)
+                jobScheduleListData.add(calendarEntry);
+        }
     }
 
     @Override
@@ -224,10 +327,10 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 String returnStatus = data.getExtras().getString(FileDialog.RETURN_STATUS);
                 String pathSelected = data.getExtras().getString("path");
 
-                if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED))
+                if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED)) {
                     pathToCurrentCalendarFile = pathSelected;
-
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                    readAndParseJobSchedule(pathToCurrentCalendarFile);
+                }
             }
         }
     }
@@ -321,71 +424,32 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * Read and parse a job schedule file.
+     * Gets all calendar entries matching a given vag number.
      *
-     * @param pathToCurrentCalendarFile
-     * @return True is the file could be read, false if there was an i/o error...
+     * @param vagNumber
      */
-    private boolean readAndParseJobSchedule(String pathToCurrentCalendarFile) {
+    public void setFilterVagNumber(String vagNumber) {
+        List <CalendarEntry> result=myCalendar.getCalenderEntrysMatchingCourseNumber(vagNumber);
+        for (CalendarEntry e: result)
+            Log.v("RESULT ",e.getDate());
+        myCalendar.getCalenderEntrysMatchingVAG(vagNumber);
+        //readAndParseJobSchedule(pathToCurrentCalendarFile);
+        //jobScheduleListAdapter.notifyDataSetChanged();
+        Log.v("FILTERFILTER", " Click "+vagNumber+"  "+myCalendar);
 
-        jobScheduleListData.clear();
-        jobScheduleListAdapter.notifyDataSetChanged();
+    }
 
-        List<CalendarEntry> rawCalendar = new ArrayList();
-        MakeCalendar myCalendar = new MakeCalendar(pathToCurrentCalendarFile);
 
-        // Get unsorted, unfiltered calendar
-        rawCalendar = myCalendar.getRawCalendar();
-
-        getAndShowTodaysEvent(rawCalendar);
-
-        long currentTimeInMillisec = System.currentTimeMillis();
-
-        if (myCalendar.hasError()) {
-            return false;
-        } else {
-            for (CalendarEntry calendarEntry : rawCalendar) {
-
-                Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
-
-                if (showOnlyFutureEventsView.isChecked()) {
-                    if (currentEventTimeInMillisec >= currentTimeInMillisec)
-                        addEvent(calendarEntry);
-                } else
-                    addEvent(calendarEntry);
-            }
-        }
-        jobScheduleListAdapter.notifyDataSetChanged();
+    /**
+     * Updates the current job schedule list
+     */
+    private void loadJobScheduleFromFile(String path) {
+        readAndParseJobSchedule(path);
 
         String revisionDate = myCalendar.getCalendarRevisionDate();
         String revisionTime = myCalendar.getCalendarRevisionTime();
         getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
-
-        return true;
-    }
-
-    /**
-     * Add a calendar entry to the calendar according
-     * to view options selected by the user
-     *
-     * @param calendarEntry
-     * @global jobScheduleListData  Holding calendar entries currently visible to the user.
-     */
-    private void addEvent(CalendarEntry calendarEntry) {
-
-        if (selectAllView.isChecked()) {
-            jobScheduleListData.add(calendarEntry);
-        }
-
-        if (selectValidView.isChecked()) {
-            if (calendarEntry.isValidEntry)
-                jobScheduleListData.add(calendarEntry);
-        }
-
-        if (selectInvalidView.isChecked()) {
-            if (!calendarEntry.isValidEntry)
-                jobScheduleListData.add(calendarEntry);
-        }
+        getAndShowTodaysEvent(jobScheduleListData);
     }
 
     /**
@@ -394,7 +458,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private void getAndShowTodaysEvent(List<CalendarEntry> rawCalendar) {
 
         int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
-        int positionOfTodaysEvent = 0;
 
         long currentTimeInMillisec = System.currentTimeMillis();
         Calendar todaysDate = Calendar.getInstance();

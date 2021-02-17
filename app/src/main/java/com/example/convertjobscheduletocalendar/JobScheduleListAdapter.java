@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,8 +74,8 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-
-       String htmlString;
+        Log.v("ADDD"," Holder invoked");
+        String htmlString;
         TextView dayOfWeekView=holder.mView.findViewById(R.id.day_of_week);
         int dayNameResourche=dayOfWeek [(jobScheduleListData.get(position).getDayOfWeekForThisDate())-1];
         dayOfWeekView.setText(context.getString(dayNameResourche));
@@ -87,7 +88,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         TextView loctionView=holder.mView.findViewById(R.id.location);
         TextView typeView=holder.mView.findViewById(R.id.type);
         TextView holidayView=holder.mView.findViewById(R.id.holiday_remark);
-        TextView originalEntryView=holder.mView.findViewById(R.id.original_entry);
+        //TextView originalEntryView=holder.mView.findViewById(R.id.original_entry);
 
         dateView.setText(jobScheduleListData.get(position).getDate());
         startTimeView.setText(jobScheduleListData.get(position).getStartTime());
@@ -101,12 +102,12 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
 
         holidayView.setText(jobScheduleListData.get(position).getHoliday());
 
-        originalEntryView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(jobScheduleListData.get(position).getOrgiriginalEntry()), 0));
+        //originalEntryView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(jobScheduleListData.get(position).getOrgiriginalEntry()), 0));
 
         // Set background color and options according to the status of the entry.
         final View backgroundView=holder.mView.findViewById(R.id.calendar_entry_view);
-        final TextView addCalendarEntryView=backgroundView.findViewById(R.id.add_to_calendar);
-        final TextView addToEMailView=backgroundView.findViewById(R.id.add_to_email);
+        final ImageButton addCalendarEntryView=backgroundView.findViewById(R.id.add_to_calendar);
+        final ImageButton addToEMailView=backgroundView.findViewById(R.id.add_to_email);
 
         if (jobScheduleListData.get(position).isValidEntry) {
 
@@ -123,6 +124,13 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
                 }
             });
 
+            vagNumberView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainActivity.setFilterVagNumber(jobScheduleListData.get(position).getVagNumber());
+                }
+            });
+
             addToEMailView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -133,6 +141,10 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
             backgroundView.setBackgroundResource(R.drawable.background_gradient_red);
             addCalendarEntryView.setVisibility(View.GONE);
         }
+
+        //
+        //if (addCalendarEntryView.getVisibility() == View.VISIBLE || addToEMailView.getVisibility()==View.VISIBLE)
+          //  holder.setIsRecyclable(false);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
