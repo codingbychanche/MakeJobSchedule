@@ -108,6 +108,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         final View backgroundView=holder.mView.findViewById(R.id.calendar_entry_view);
         final ImageButton addCalendarEntryView=backgroundView.findViewById(R.id.add_to_calendar);
         final ImageButton addToEMailView=backgroundView.findViewById(R.id.add_to_email);
+        final ImageButton viewRawView=backgroundView.findViewById(R.id.show_original_entry);
 
         if (jobScheduleListData.get(position).isValidEntry) {
 
@@ -137,6 +138,14 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
                     mainActivity.addToEMail(position);
                 }
             });
+
+            viewRawView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainActivity.showRawEntry(position);
+                }
+            });
+
         }else {
             backgroundView.setBackgroundResource(R.drawable.background_gradient_red);
             addCalendarEntryView.setVisibility(View.GONE);

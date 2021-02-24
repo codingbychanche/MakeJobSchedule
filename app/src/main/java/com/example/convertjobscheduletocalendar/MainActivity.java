@@ -2,6 +2,7 @@ package com.example.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,8 +57,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private RecyclerView.LayoutManager jobScheduleListLayoutManager;
 
     // Calendar data
-    private List<CalendarEntry> jobScheduleListData = new ArrayList<>();
-    private MakeCalendar myCalendar;
+
 
     // UI
     private MainActivityViewModel mainActivityViewModel;
@@ -133,7 +133,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         jobScheduleListRecyclerView.setHasFixedSize(true);
         jobScheduleListLayoutManager = new LinearLayoutManager(this);
         jobScheduleListRecyclerView.setLayoutManager(jobScheduleListLayoutManager);
-        jobScheduleListAdapter = new JobScheduleListAdapter(jobScheduleListData, this, context);
+
+        jobScheduleListAdapter = new JobScheduleListAdapter(mainActivityViewModel.getJobScheduleListData(), this, context);
         jobScheduleListRecyclerView.setAdapter(jobScheduleListAdapter);
 
         // Was a calendar file opened previously?
@@ -204,20 +205,20 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     private boolean readAndParseJobSchedule(String pathToCurrentCalendarFile) {
 
-        jobScheduleListData.clear();
+        mainActivityViewModel.getJobScheduleListData().clear();
         jobScheduleListAdapter.notifyDataSetChanged();
 
         List<CalendarEntry> rawCalendar = new ArrayList();
-        myCalendar = new MakeCalendar(pathToCurrentCalendarFile);
+        mainActivityViewModel.setMycalendar(new MakeCalendar(pathToCurrentCalendarFile));
 
         // Get unsorted, unfiltered calendar
-        rawCalendar = myCalendar.getRawCalendar();
+        rawCalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
 
         getAndShowTodaysEvent(rawCalendar);
 
         long currentTimeInMillisec = System.currentTimeMillis();
 
-        if (myCalendar.hasError()) {
+        if (mainActivityViewModel.getMyCalendar().hasError()) {
             return false;
         } else {
             for (CalendarEntry calendarEntry : rawCalendar) {
@@ -233,13 +234,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         }
         jobScheduleListAdapter.notifyDataSetChanged();
 
-        String revisionDate = myCalendar.getCalendarRevisionDate();
-        String revisionTime = myCalendar.getCalendarRevisionTime();
+        String revisionDate = mainActivityViewModel.getMyCalendar().getCalendarRevisionDate();
+        String revisionTime = mainActivityViewModel.getMyCalendar().getCalendarRevisionTime();
         getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
 
         return true;
     }
-
 
     /**
      * Add a calendar entry to the calendar according
@@ -251,17 +251,17 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private void addEvent(CalendarEntry calendarEntry) {
 
         if (mainActivityViewModel.getShowAllEvents()) {
-            jobScheduleListData.add(calendarEntry);
+            mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
         }
 
         if (mainActivityViewModel.getShowValid()) {
             if (calendarEntry.isValidEntry)
-                jobScheduleListData.add(calendarEntry);
+                mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
         }
 
         if (mainActivityViewModel.getShowInvalid()) {
             if (!calendarEntry.isValidEntry)
-                jobScheduleListData.add(calendarEntry);
+                mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
         }
     }
 
@@ -348,22 +348,22 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // one wants to add only one event....
         //
         // Source: {@link https://stackoverflow.com/questions/4373074/how-to-launch-android-calendar-application-using-intent-froyo}
-        int year = jobScheduleListData.get(position).getYear() + 2000;
-        int month = jobScheduleListData.get(position).getMonth();
-        int day = jobScheduleListData.get(position).getDay();
-        int startH = jobScheduleListData.get(position).getStartTimeHours();
-        int startM = jobScheduleListData.get(position).getStartTimeMinutes();
-        int endH = jobScheduleListData.get(position).getEndTimeHours();
-        int endM = jobScheduleListData.get(position).getEndTimeMinutes();
+        int year = mainActivityViewModel.getJobScheduleListData().get(position).getYear() + 2000;
+        int month = mainActivityViewModel.getJobScheduleListData().get(position).getMonth();
+        int day = mainActivityViewModel.getJobScheduleListData().get(position).getDay();
+        int startH = mainActivityViewModel.getJobScheduleListData().get(position).getStartTimeHours();
+        int startM = mainActivityViewModel.getJobScheduleListData().get(position).getStartTimeMinutes();
+        int endH = mainActivityViewModel.getJobScheduleListData().get(position).getEndTimeHours();
+        int endM = mainActivityViewModel.getJobScheduleListData().get(position).getEndTimeMinutes();
 
         if (endH == 0 && endM == 0) {
             endH = 23;
             endM = 59;
         }
 
-        String courseNumber = jobScheduleListData.get(position).getCourseNumber();
-        String location = jobScheduleListData.get(position).getLocation();
-        String vag = jobScheduleListData.get(position).getVagNumber();
+        String courseNumber = mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
+        String location = mainActivityViewModel.getJobScheduleListData().get(position).getLocation();
+        String vag = mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber();
         String description = courseNumber + "  VAG:" + vag;
 
         //@rem; Shows how a date can be converted to millisec's@@
@@ -404,11 +404,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     @Override
     public void addToEMail(int position) {
 
-        String courseNumber = jobScheduleListData.get(position).getCourseNumber();
-        String vagNumber = jobScheduleListData.get(position).getVagNumber();
-        String location = jobScheduleListData.get(position).getLocation();
-        String message = jobScheduleListData.get(position).getOrgiriginalEntry();
-        String date = jobScheduleListData.get(position).getDate();
+        String courseNumber = mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
+        String vagNumber = mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber();
+        String location = mainActivityViewModel.getJobScheduleListData().get(position).getLocation();
+        String message = mainActivityViewModel.getJobScheduleListData().get(position).getOrgiriginalEntry();
+        String date = mainActivityViewModel.getJobScheduleListData().get(position).getDate();
 
         String subject = "Anfrage zu VAG:" + vagNumber + "//" + courseNumber + " in " + location + " am " + date;
 
@@ -429,16 +429,23 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * @param vagNumber
      */
     public void setFilterVagNumber(String vagNumber) {
-        List <CalendarEntry> result=myCalendar.getCalenderEntrysMatchingCourseNumber(vagNumber);
-        for (CalendarEntry e: result)
-            Log.v("RESULT ",e.getDate());
-        myCalendar.getCalenderEntrysMatchingVAG(vagNumber);
-        //readAndParseJobSchedule(pathToCurrentCalendarFile);
-        //jobScheduleListAdapter.notifyDataSetChanged();
-        Log.v("FILTERFILTER", " Click "+vagNumber+"  "+myCalendar);
+        List<CalendarEntry> result = mainActivityViewModel.getMyCalendar().getCalenderEntrysMatchingVAG(vagNumber);
 
+        for (CalendarEntry e : result)
+            System.out.println(e.getDate());
     }
 
+    /**
+     * Shows a detailed view of the selected entry
+     *
+     * @param position
+     */
+    public void showRawEntry(int position) {
+        mainActivityViewModel.setCurrentJobScheduleListItemsIndex(position);
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentDateDetailView detailView= FragmentDateDetailView.newInstance("Titel");
+        detailView.show(fm, "fragment_date_detail_view");
+    }
 
     /**
      * Updates the current job schedule list
@@ -446,10 +453,10 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private void loadJobScheduleFromFile(String path) {
         readAndParseJobSchedule(path);
 
-        String revisionDate = myCalendar.getCalendarRevisionDate();
-        String revisionTime = myCalendar.getCalendarRevisionTime();
+        String revisionDate = mainActivityViewModel.getMyCalendar().getCalendarRevisionDate();
+        String revisionTime = mainActivityViewModel.getMyCalendar().getCalendarRevisionTime();
         getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
-        getAndShowTodaysEvent(jobScheduleListData);
+        getAndShowTodaysEvent(mainActivityViewModel.getJobScheduleListData());
     }
 
     /**

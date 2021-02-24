@@ -28,4 +28,8 @@
     <string name="load_text">Einsatzplan laden</string>
     <string name="info">Info</string>
 
+    <!-- Fragment date detail view -->
+    <string name="date_detail_view_title">Detailierte Ansicht</string>
+    <string name="ok_button">Ok</string>
+    <string name="cancel_button">Abbrechen</string>
 </resources>

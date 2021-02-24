@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ fragment_spend_money.xml ~
+  ~ Created by Berthold Fritz
+  ~
+  ~ This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License:
+  ~ https://creativecommons.org/licenses/by-nc-sa/4.0/
+  ~
+  ~ Last modified 11/3/19 8:40 AM
+  -->
+
+<!--
+  ~ fragment_spend_money.xmly.xml
+  ~
+  ~ Created by Berthold Fritz
+  ~
+  ~ This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License:
+  ~ https://creativecommons.org/licenses/by-nc-sa/4.0/
+  ~
+  ~ Last modified 3/28/18 9:19 PM
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="20dp"
+    android:paddingRight="20dp">
+
+    <Button
+        android:id="@+id/ok_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ok_button"
+        app:layout_constraintEnd_toEndOf="@+id/original_entry"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView10"
+        style="@style/DialogBoxStyleTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/date_detail_view_title"
+        app:layout_constraintBottom_toBottomOf="@+id/ok_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/ok_button"></TextView>
+
+    <TextView
+        android:id="@+id/vag_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="VAG"
+        app:layout_constraintStart_toStartOf="@+id/textView10"
+        app:layout_constraintTop_toBottomOf="@+id/ok_button"></TextView>
+
+    <TextView
+        android:id="@+id/course_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:hint="COURSE"
+        app:layout_constraintStart_toEndOf="@+id/vag_number"
+        app:layout_constraintTop_toTopOf="@+id/vag_number"></TextView>
+
+    <TextView
+        android:id="@+id/begin_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="START_DATE"
+        app:layout_constraintStart_toStartOf="@+id/vag_number"
+        app:layout_constraintTop_toBottomOf="@+id/vag_number"></TextView>
+
+    <TextView
+        android:id="@+id/end_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:hint="END_DATE"
+        app:layout_constraintStart_toEndOf="@+id/begin_date"
+        app:layout_constraintTop_toTopOf="@+id/begin_date"></TextView>
+
+    <TextView
+        android:id="@+id/original_entry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:hint="ORIGINAL"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/begin_date"
+        tools:layout_editor_absoluteX="20dp"></TextView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

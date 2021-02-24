@@ -1,7 +1,5 @@
 package com.example.convertjobscheduletocalendar;
 
-import android.util.Log;
-
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
@@ -12,6 +10,11 @@ import CalendarMaker.MakeCalendar;
 
 public class MainActivityViewModel extends ViewModel {
 
+    // Data
+    private int currentJobScheduleItemsIndex;
+    private MakeCalendar mycalendar;
+    private List<CalendarEntry> jobScheduleListData = new ArrayList<>();
+
     // Filter settings
     private boolean isShowOnlyFutureEvents = false;
     private boolean showAllEvents = true;
@@ -19,25 +22,50 @@ public class MainActivityViewModel extends ViewModel {
     private boolean showInvalid = false;
 
     /**
-     * @return The calendar object provided by {@link MakeCalendar}.
-
-    public MakeCalendar getCalendar() {
-        return myCalendar;
+     * Initializes the current job schedule.
+     * Take care to invoke this, when a new jobschedule has been loaded
+     * from the filesystem.
+     *
+     * @param mycalendar
+     */
+    public void setMycalendar(MakeCalendar mycalendar){
+        this.mycalendar=mycalendar;
     }
 
     /**
-     * @return The job schedule list, extracted from
-     * a calendar object which was created by {@link MakeCalendar}
-     * and which is filled with all entry's according to the current settings.
+     * @return The current job schedule.
+     */
+    public MakeCalendar getMyCalendar(){
+        return mycalendar;
+    }
 
-    public List<CalendarEntry> getJobScheduleListData() {
+    /**
+     * Sets the current entry in the job schedule list.
+     * Take care to invoke this every time when an entry was
+     * picked from the job schedule list view.
+     *
+     * @param currentEntry
+     */
+    public void setCurrentJobScheduleListItemsIndex(int currentEntry){
+        this.currentJobScheduleItemsIndex =currentEntry;
+    }
+
+    /**
+     * @return The index of the current entry (e.g. selected job schedule list item).
+     */
+    public int getCurrentJobScheduleListItemsIndex(){
+        return currentJobScheduleItemsIndex;
+    }
+
+    public void setJobScheduleListData(List <CalendarEntry> jobScheduleListData){
+        this.jobScheduleListData=jobScheduleListData;
+    }
+
+    public  List<CalendarEntry> getJobScheduleListData(){
         return jobScheduleListData;
     }
 
-    public void setJobScheduleListData(List<CalendarEntry> jobScheduleListData) {
-        this.jobScheduleListData = jobScheduleListData;
-    }
-    */
+    // Filter settings
     public void setShowOnlyFutureEvents(boolean state) {
         isShowOnlyFutureEvents = state;
     }
