@@ -28,14 +28,14 @@ public class MainActivityViewModel extends ViewModel {
      *
      * @param mycalendar
      */
-    public void setMycalendar(MakeCalendar mycalendar){
-        this.mycalendar=mycalendar;
+    public void setMycalendar(MakeCalendar mycalendar) {
+        this.mycalendar = mycalendar;
     }
 
     /**
      * @return The current job schedule.
      */
-    public MakeCalendar getMyCalendar(){
+    public MakeCalendar getMyCalendar() {
         return mycalendar;
     }
 
@@ -46,22 +46,22 @@ public class MainActivityViewModel extends ViewModel {
      *
      * @param currentEntry
      */
-    public void setCurrentJobScheduleListItemsIndex(int currentEntry){
-        this.currentJobScheduleItemsIndex =currentEntry;
+    public void setCurrentJobScheduleListItemsIndex(int currentEntry) {
+        this.currentJobScheduleItemsIndex = currentEntry;
     }
 
     /**
      * @return The index of the current entry (e.g. selected job schedule list item).
      */
-    public int getCurrentJobScheduleListItemsIndex(){
+    public int getCurrentJobScheduleListItemsIndex() {
         return currentJobScheduleItemsIndex;
     }
 
-    public void setJobScheduleListData(List <CalendarEntry> jobScheduleListData){
-        this.jobScheduleListData=jobScheduleListData;
+    public void setJobScheduleListData(List<CalendarEntry> jobScheduleListData) {
+        this.jobScheduleListData = jobScheduleListData;
     }
 
-    public  List<CalendarEntry> getJobScheduleListData(){
+    public List<CalendarEntry> getJobScheduleListData() {
         return jobScheduleListData;
     }
 

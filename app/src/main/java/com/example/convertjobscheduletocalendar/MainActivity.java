@@ -3,6 +3,7 @@ package com.example.convertjobscheduletocalendar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,7 +38,7 @@ import berthold.filedialogtool.FileDialog;
  *
  * @author Berthold Fritz
  */
-public class MainActivity extends AppCompatActivity implements JobScheduleListAdapter.receieve {
+public class MainActivity extends AppCompatActivity implements JobScheduleListAdapter.receieve, FragmentDateDetailView.DateDetailView {
 
     // Shared prefs
     SharedPreferences sharedPreferences;
@@ -341,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * @param position
      */
     @Override
-    public void addToCalendarPressed(int position) {
+    public void addThisEntryToCalendar(int position) {
 
         // This code creates an event and will open the calendar app's save dialog.
         // Doing so is quite good practice and a suitable method if
@@ -402,8 +403,9 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * @param position
      */
     @Override
-    public void addToEMail(int position) {
+    public void mailInquiryForThisEntry(int position) {
 
+        Log.v("MAILMAIL", "");
         String courseNumber = mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
         String vagNumber = mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber();
         String location = mainActivityViewModel.getJobScheduleListData().get(position).getLocation();
@@ -440,23 +442,30 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      *
      * @param position
      */
-    public void showRawEntry(int position) {
+    @Override
+    public void showEntryDetailView(int position) {
         mainActivityViewModel.setCurrentJobScheduleListItemsIndex(position);
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentDateDetailView detailView= FragmentDateDetailView.newInstance("Titel");
-        detailView.show(fm, "fragment_date_detail_view");
+
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction ft = manager.beginTransaction();
+
+        ft.setReorderingAllowed(true);
+        ft.replace(R.id.fragment_container, new FragmentDateDetailView(), "Fragment_1");
+        ft.commitAllowingStateLoss();
     }
 
     /**
-     * Updates the current job schedule list
+     * Hides the fragment invoking this callback via it's associated interface
      */
-    private void loadJobScheduleFromFile(String path) {
-        readAndParseJobSchedule(path);
-
-        String revisionDate = mainActivityViewModel.getMyCalendar().getCalendarRevisionDate();
-        String revisionTime = mainActivityViewModel.getMyCalendar().getCalendarRevisionTime();
-        getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
-        getAndShowTodaysEvent(mainActivityViewModel.getJobScheduleListData());
+    @Override
+    public void hideFragmentCurrentlyShown() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        //@rem Shows how to search a fragment by it's tag and how to hide it@@
+        FragmentDateDetailView dateDetailView_1 = (FragmentDateDetailView) fragmentManager.findFragmentByTag("Fragment_1");
+        //@@
+        fragmentTransaction.hide(dateDetailView_1);
+        fragmentTransaction.commit();
     }
 
     /**
@@ -470,11 +479,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         Calendar todaysDate = Calendar.getInstance();
         todaysDate.setTimeInMillis(currentTimeInMillisec);
 
-        if (todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+        if (todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY || todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
 
             // Lookup the current day and display it permanently
             for (CalendarEntry entry : rawCalendar) {
-                if (entry.compareThisEntrysDateWith(todaysDate) == entry.IS_NOT_TODAY_OR_WEEKEND && entry.isValidEntry) {
+                if (entry.compareThisEntrysDateWith(todaysDate) == entry.HAS_SAME_DATE && entry.isValidEntry) {
                     int dayNameResourche = dayOfWeek[entry.getDayOfWeekForThisDate() - 1];
                     dayOfWeekView.setText(context.getString(dayNameResourche));
                     dateView.setText(entry.getDate());
@@ -492,8 +501,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 }
             }
         } else {
-            dayOfWeekView.setText("WE");
             clearTodaysEventView();
+            dayOfWeekView.setText("WE");
         }
     }
 

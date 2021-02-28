@@ -31,5 +31,8 @@
     <!-- Fragment date detail view -->
     <string name="date_detail_view_title">Detailierte Ansicht</string>
     <string name="ok_button">Ok</string>
-    <string name="cancel_button">Abbrechen</string>
+    <string name="selected_entrys_details">Ausgewählter Eintrag:</string>
+    <string name="this_entry_belongs_to_vag">Der dazu gehörige Lehrgang:</string>
+    <string name="course_begins_at">Beginnt am</string>
+    <string name="course_ends_at">Endet am</string>
 </resources>

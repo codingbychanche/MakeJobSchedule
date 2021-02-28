@@ -140,35 +140,6 @@
                 app:layout_constraintStart_toEndOf="@+id/type"
                 app:layout_constraintTop_toBottomOf="@+id/vag_number"></TextView>
 
-
-            <ImageButton
-                android:id="@+id/add_to_calendar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_menu_my_calendar"
-                android:background="#00ffffff"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"></ImageButton>
-
-            <ImageButton
-                android:id="@+id/add_to_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="#00ffffff"
-                android:src="@android:drawable/ic_dialog_email"
-                app:layout_constraintStart_toStartOf="@+id/add_to_calendar"
-                app:layout_constraintTop_toBottomOf="@+id/add_to_calendar"></ImageButton>
-
-            <ImageButton
-                android:id="@+id/show_original_entry"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="#00ffffff"
-                android:src="@android:drawable/ic_menu_view"
-                app:layout_constraintStart_toStartOf="@+id/add_to_email"
-                app:layout_constraintTop_toBottomOf="@+id/add_to_email"></ImageButton>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
