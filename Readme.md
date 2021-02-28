@@ -12,5 +12,9 @@ Import your latest job schedule.
 
 Add selected events to your devices calendar app.
 
+![](Shot_3.png)
+
+Each entry can be viewed in detail. You can choose to add just the selected entry or the whole course to to devices calendar app. 
+
 
 
