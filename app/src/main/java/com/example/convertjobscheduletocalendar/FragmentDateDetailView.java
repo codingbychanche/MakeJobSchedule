@@ -14,6 +14,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import CalendarMaker.CalendarEntry;
+
 
 public class FragmentDateDetailView extends Fragment {
 
@@ -26,7 +31,7 @@ public class FragmentDateDetailView extends Fragment {
     // UI
     ImageButton addThisEntryToCalendarView, mailInquiryForThisEntryView;
 
-    // Implement in order to invoke a reaction appropriate...
+    // Implement in order to invoke an appropriate reaction
     public interface DateDetailView {
         void hideFragmentCurrentlyShown();
 
@@ -64,7 +69,6 @@ public class FragmentDateDetailView extends Fragment {
         okView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("LEAVEFRAGENT", "s");
                 dateDetailView.hideFragmentCurrentlyShown();
             }
         });
@@ -87,6 +91,7 @@ public class FragmentDateDetailView extends Fragment {
             }
         });
 
+        // Show details of entry currently selected
         TextView vagView = view.findViewById(R.id.vag_number);
         TextView courseNumber = view.findViewById(R.id.course_number);
         TextView startDateView = view.findViewById(R.id.begin_date);
@@ -107,6 +112,23 @@ public class FragmentDateDetailView extends Fragment {
 
         String originalEntry = mainActivityViewModel.getJobScheduleListData().get(currentEntry).getOrgiriginalEntry();
         orgiriginalEntry.setText(originalEntry);
+
+        // Show whole course
+        List <CalendarEntry>thisCourseByVAGNumber=new ArrayList<CalendarEntry>();
+        thisCourseByVAGNumber=mainActivityViewModel.getMyCalendar().getCalenderEntrysMatchingVAG(mainActivityViewModel.getJobScheduleListData().get(currentEntry).getVagNumber());
+
+        TextView firstDayOfCourseView=view.findViewById(R.id.course_begins_at);
+        TextView lastDayOfCourseView=view.findViewById(R.id.course_ends_at);
+        TextView daysRunningView=view.findViewById(R.id.number_of_days_running);
+
+        int numberOfEntriesFound=thisCourseByVAGNumber.size()-1;
+        int numberOfDaysRunning=thisCourseByVAGNumber.size();
+        String startDate=thisCourseByVAGNumber.get(0).getDate();
+        String endDate=thisCourseByVAGNumber.get(numberOfEntriesFound).getDate();
+
+        firstDayOfCourseView.setText(startDate);
+        lastDayOfCourseView.setText(endDate);
+        daysRunningView.setText(numberOfDaysRunning+"");
 
 
     }

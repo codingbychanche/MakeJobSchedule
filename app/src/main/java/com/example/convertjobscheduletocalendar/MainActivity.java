@@ -57,9 +57,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     private RecyclerView.Adapter jobScheduleListAdapter;
     private RecyclerView.LayoutManager jobScheduleListLayoutManager;
 
-    // Calendar data
-
-
     // UI
     private MainActivityViewModel mainActivityViewModel;
     RadioGroup radioGroupViewFilters;
