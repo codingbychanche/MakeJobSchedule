@@ -402,7 +402,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     @Override
     public void mailInquiryForThisEntry(int position) {
 
-        Log.v("MAILMAIL", "");
         String courseNumber = mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
         String vagNumber = mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber();
         String location = mainActivityViewModel.getJobScheduleListData().get(position).getLocation();
@@ -423,15 +422,120 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * Gets all calendar entries matching a given vag number.
+     * Add's a whole course (based on it's VAG- number) to the
+     * devices calendar app.
+     *
+     * @param position
+     */
+    @Override
+    public void addThisCourseToCalendar(int position) {
+
+        String vagNumber = mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
+
+        // Get the current course
+        List<CalendarEntry> thisCourseByVAGNumber = new ArrayList<CalendarEntry>();
+        thisCourseByVAGNumber = mainActivityViewModel.getMyCalendar().getCalenderEntrysMatchingVAG(mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber());
+        int numberOfEntriesFound = thisCourseByVAGNumber.size() - 1;
+        int numberOfDaysRunning = thisCourseByVAGNumber.size();
+
+        // Get first day of course
+        int yearStart = thisCourseByVAGNumber.get(0).getYear() + 2000;
+        int monthStart = thisCourseByVAGNumber.get(0).getMonth();
+        int dayStart = thisCourseByVAGNumber.get(0).getDay();
+        int startH = thisCourseByVAGNumber.get(0).getStartTimeHours();
+        int startM = thisCourseByVAGNumber.get(0).getStartTimeMinutes();
+
+        if (startH == 0 && startM == 0) {
+            startH = 23;
+            startM = 59;
+        }
+
+        Calendar beginTime = Calendar.getInstance();
+        beginTime.set(yearStart, monthStart - 1, dayStart, startH, startM);
+        Long startMillis = beginTime.getTimeInMillis();
+
+        // Get last day of course
+        int yearEnd = thisCourseByVAGNumber.get(numberOfEntriesFound).getYear() + 2000;
+        int monthEnd = thisCourseByVAGNumber.get(numberOfEntriesFound).getMonth();
+        int dayEnd = thisCourseByVAGNumber.get(numberOfEntriesFound).getDay();
+        int endH = thisCourseByVAGNumber.get(numberOfEntriesFound).getEndTimeHours();
+        int endM = thisCourseByVAGNumber.get(numberOfEntriesFound).getEndTimeMinutes();
+
+        if (endH == 0 && endM == 0) {
+            endH = 23;
+            endM = 59;
+        }
+
+        Calendar endTime = Calendar.getInstance();
+        endTime.set(yearEnd, monthEnd - 1, dayEnd, endH, endM);
+        Long endMillis = endTime.getTimeInMillis();
+
+        // Get other data
+        String location = mainActivityViewModel.getJobScheduleListData().get(position).getLocation();
+        String vag = mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber();
+        String description = vagNumber + "  VAG:" + vag + " Dauer " + numberOfDaysRunning + " Tage";
+
+        // Create calendar entry, start devices calendar app
+        Intent intent = new Intent(Intent.ACTION_EDIT);
+        intent.setType("vnd.android.cursor.item/event");
+        intent.putExtra("beginTime", startMillis);
+        intent.putExtra("endTime", endMillis);
+        intent.putExtra(CalendarContract.Events.EVENT_LOCATION, location);
+
+
+        intent.putExtra("title", description);
+        startActivity(intent);
+    }
+
+    /**
+     * Starts the devices e- mail app to start an inquiry for
+     * a whole course.
+     *
+     * @param position
+     */
+    @Override
+    public void mailInquiryForThisCourse(int position) {
+
+        String vagNumber = mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber();
+        String courseNumber=mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
+        String originalEntry=mainActivityViewModel.getJobScheduleListData().get(position).getOrgiriginalEntry();
+
+        // Get the current course
+        List<CalendarEntry> thisCourseByVAGNumber = new ArrayList<CalendarEntry>();
+        thisCourseByVAGNumber = mainActivityViewModel.getMyCalendar().getCalenderEntrysMatchingVAG(mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber());
+        int numberOfEntriesFound = thisCourseByVAGNumber.size() - 1;
+        int numberOfDaysRunning = thisCourseByVAGNumber.size();
+
+        String startDate=thisCourseByVAGNumber.get(0).getDate();
+        String startTime=thisCourseByVAGNumber.get(0).getStartTime();
+        String startLocation=thisCourseByVAGNumber.get(0).getLocation();
+
+        String endDate=thisCourseByVAGNumber.get(numberOfEntriesFound).getDate();
+        String endTime=thisCourseByVAGNumber.get(numberOfEntriesFound).getEndTime();
+
+        String subject = "Anfrage zu VAG:" +vagNumber + " Kurs:" + courseNumber;
+        String message="Beginnt am "+ startDate+"//"+startTime+" Uhr und endet am "+endDate+" um "+endTime+" (Dauer "+numberOfDaysRunning+" Tage) Ort am ersten Tag:"+startLocation+" ORIGINAL:"+originalEntry;
+
+        Intent email = new Intent(Intent.ACTION_SEND);
+        email.putExtra(Intent.EXTRA_EMAIL, "");
+        email.putExtra(Intent.EXTRA_SUBJECT, subject);
+        email.putExtra(Intent.EXTRA_TEXT, message);
+
+        //need this to prompts email client only
+        email.setType("message/rfc822");
+
+        startActivity(Intent.createChooser(email, "Choose an Email client :"));
+    }
+
+    /**
+     * ToDo Gets all calendar entries matching a given vag number.
      *
      * @param vagNumber
      */
     public void setFilterVagNumber(String vagNumber) {
         List<CalendarEntry> result = mainActivityViewModel.getMyCalendar().getCalenderEntrysMatchingVAG(vagNumber);
 
-        for (CalendarEntry e : result)
-            System.out.println(e.getDate());
+
     }
 
     /**

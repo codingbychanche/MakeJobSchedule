@@ -2,7 +2,6 @@ package com.example.convertjobscheduletocalendar;
 
 import android.os.Bundle;
 import android.transition.TransitionInflater;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,7 @@ public class FragmentDateDetailView extends Fragment {
     static MainActivityViewModel mainActivityViewModel;
 
     // UI
-    ImageButton addThisEntryToCalendarView, mailInquiryForThisEntryView;
+    ImageButton addThisEntryToCalendarView,addThisCourseToCalendarView, mailInquiryForThisEntryView, mailInquiryForTheWholeCourseView;
 
     // Implement in order to invoke an appropriate reaction
     public interface DateDetailView {
@@ -38,6 +37,10 @@ public class FragmentDateDetailView extends Fragment {
         void addThisEntryToCalendar(int position);
 
         void mailInquiryForThisEntry(int position);
+
+        void addThisCourseToCalendar(int position);
+
+        void mailInquiryForThisCourse(int Position);
     }
 
     public FragmentDateDetailView() {
@@ -90,6 +93,25 @@ public class FragmentDateDetailView extends Fragment {
                 dateDetailView.mailInquiryForThisEntry(mainActivityViewModel.getCurrentJobScheduleListItemsIndex());
             }
         });
+
+        // Adds the whole course to the devices calendar
+        addThisCourseToCalendarView = view.findViewById(R.id.add_whole_course_to_devices_calendar);
+        addThisCourseToCalendarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dateDetailView.addThisCourseToCalendar(mainActivityViewModel.getCurrentJobScheduleListItemsIndex());
+            }
+        });
+
+        // Sends an e- mail inquiry regarding the whole course
+        mailInquiryForTheWholeCourseView = view.findViewById(R.id.mail_inquiry_for_whole_course_entry);
+        mailInquiryForTheWholeCourseView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dateDetailView.mailInquiryForThisCourse(mainActivityViewModel.getCurrentJobScheduleListItemsIndex());
+            }
+        });
+
 
         // Show details of entry currently selected
         TextView vagView = view.findViewById(R.id.vag_number);

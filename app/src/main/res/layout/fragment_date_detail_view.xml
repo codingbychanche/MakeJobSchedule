@@ -133,7 +133,7 @@
         android:hint="ORIGINAL"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/begin_date"
-        app:layout_constraintTop_toBottomOf="@+id/begin_date"></TextView>
+        app:layout_constraintTop_toBottomOf="@+id/mail_inquiry_for_this_entry"></TextView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/horiz_line_2"
@@ -200,6 +200,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:hint="365"
+        app:layout_constraintBottom_toBottomOf="@+id/course_ends_at"
         app:layout_constraintStart_toEndOf="@+id/course_begins_at"
         app:layout_constraintTop_toTopOf="@+id/course_begins_at" />
 
@@ -207,11 +208,11 @@
         android:id="@+id/textView11"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="@string/days_running_text"
-        app:layout_constraintBottom_toBottomOf="@+id/course_ends_at"
-        app:layout_constraintEnd_toEndOf="@+id/number_of_days_running"
-        app:layout_constraintStart_toStartOf="@+id/number_of_days_running"
-        app:layout_constraintTop_toBottomOf="@+id/number_of_days_running" />
+        app:layout_constraintBottom_toBottomOf="@+id/number_of_days_running"
+        app:layout_constraintStart_toEndOf="@+id/number_of_days_running"
+        app:layout_constraintTop_toTopOf="@+id/number_of_days_running" />
 
     <ImageButton
         android:id="@+id/add_whole_course_to_devices_calendar"
