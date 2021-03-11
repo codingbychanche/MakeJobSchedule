@@ -574,52 +574,13 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     private void getAndShowTodaysEvent(List<CalendarEntry> rawCalendar) {
 
-        int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
+        // Update fragment showing the current day
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction ft = manager.beginTransaction();
 
-        long currentTimeInMillisec = System.currentTimeMillis();
-        Calendar todaysDate = Calendar.getInstance();
-        todaysDate.setTimeInMillis(currentTimeInMillisec);
-
-        if (todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY || todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-
-            // Lookup the current day and display it permanently
-            for (CalendarEntry entry : rawCalendar) {
-                if (entry.compareThisEntrysDateWith(todaysDate) == entry.HAS_SAME_DATE && entry.isValidEntry) {
-                    int dayNameResourche = dayOfWeek[entry.getDayOfWeekForThisDate() - 1];
-                    dayOfWeekView.setText(context.getString(dayNameResourche));
-                    dateView.setText(entry.getDate());
-                    startTimeView.setText(entry.getStartTime());
-                    endTimeView.setText(entry.getEndTime());
-                    vagNumberView.setText(entry.getVagNumber());
-                    courseNumberView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(entry.getCourseNumber()), 0));
-                    loctionView.setText(HtmlCompat.fromHtml(ConvertUmlaut.toHtml(entry.getLocation()), 0));
-                    typeView.setText(entry.getType());
-                    holidayView.setText(entry.getHoliday());
-                    break;
-                } else {
-                    // Nothing found, nothing to display
-                    clearTodaysEventView();
-                }
-            }
-        } else {
-            clearTodaysEventView();
-            dayOfWeekView.setText("WE");
-        }
-    }
-
-    /**
-     * Clear views...
-     */
-    private void clearTodaysEventView() {
-        dayOfWeekView.setText("");
-        dateView.setText("");
-        startTimeView.setText("");
-        endTimeView.setText("");
-        vagNumberView.setText("");
-        courseNumberView.setText("");
-        loctionView.setText("");
-        typeView.setText("");
-        holidayView.setText("");
+        ft.setReorderingAllowed(true);
+        ft.replace(R.id.fragment_today_view, new FragemtTodayView(), "Fragment_2");
+        ft.commitAllowingStateLoss();
     }
 
     /**

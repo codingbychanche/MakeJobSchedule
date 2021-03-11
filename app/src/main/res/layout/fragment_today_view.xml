@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calendar_entry_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_gradient_grey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/today_text"
+            style="@style/DialogBoxStyleTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/today_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></TextView>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/horiz_line_2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="#999999"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/today_text"
+            tools:context=".MainActivity"
+            tools:layout_editor_absoluteX="36dp"></androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/day_of_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="DAY"
+            android:textSize="25dp"
+            app:layout_constraintBottom_toBottomOf="@+id/location"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/horiz_line_2"></TextView>
+
+
+        <TextView
+            android:id="@+id/date"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:hint="date"
+            app:layout_constraintStart_toEndOf="@+id/day_of_week"
+            app:layout_constraintTop_toBottomOf="@+id/horiz_line_2"></TextView>
+
+        <TextView
+            android:id="@+id/start_time"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="start"
+            app:layout_constraintStart_toEndOf="@+id/date"
+            app:layout_constraintTop_toTopOf="@+id/date"></TextView>
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/time_from_to"
+            app:layout_constraintStart_toEndOf="@+id/start_time"
+            app:layout_constraintTop_toTopOf="@+id/start_time"></TextView>
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/time_designation"
+            app:layout_constraintStart_toEndOf="@+id/end_time"
+            app:layout_constraintTop_toTopOf="@+id/end_time"></TextView>
+
+        <TextView
+            android:id="@+id/end_time"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="end"
+            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintTop_toTopOf="@+id/textView5"></TextView>
+
+        <TextView
+            android:id="@+id/vag_number"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="vag_number"
+            app:layout_constraintStart_toStartOf="@+id/location"
+            app:layout_constraintTop_toBottomOf="@+id/location"></TextView>
+
+        <TextView
+            android:id="@+id/course_number"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:hint="course_number"
+            app:layout_constraintStart_toEndOf="@+id/vag_number"
+            app:layout_constraintTop_toTopOf="@+id/vag_number"></TextView>
+
+        <TextView
+            android:id="@+id/type"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="type"
+            app:layout_constraintStart_toStartOf="@+id/vag_number"
+            app:layout_constraintTop_toTopOf="@+id/holiday_remark"></TextView>
+
+        <TextView
+            android:id="@+id/location"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="locction"
+            app:layout_constraintStart_toStartOf="@+id/date"
+            app:layout_constraintTop_toBottomOf="@+id/date"></TextView>
+
+        <TextView
+            android:id="@+id/holiday_remark"
+            style="@style/TableRowsTitel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:hint="holiday_remark"
+            app:layout_constraintStart_toEndOf="@+id/type"
+            app:layout_constraintTop_toBottomOf="@+id/vag_number"></TextView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
