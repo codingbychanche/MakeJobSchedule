@@ -51,8 +51,6 @@ public class FragmentDateDetailView extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TransitionInflater inflater = TransitionInflater.from(requireContext());
-        setEnterTransition(inflater.inflateTransition(R.transition.fade_in));
-        setExitTransition(inflater.inflateTransition(R.transition.fade_out));
     }
 
     @Override

@@ -94,7 +94,7 @@
                 style="@style/TableRowsTitel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="1dp"
                 android:hint="vag_number"
                 app:layout_constraintStart_toStartOf="@+id/location"
                 app:layout_constraintTop_toBottomOf="@+id/location"></TextView>
@@ -114,6 +114,7 @@
                 style="@style/TableRowsTitel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:hint="type"
                 app:layout_constraintStart_toStartOf="@+id/vag_number"
                 app:layout_constraintTop_toTopOf="@+id/holiday_remark"></TextView>
@@ -123,7 +124,7 @@
                 style="@style/TableRowsTitel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="1dp"
                 android:hint="locction"
                 app:layout_constraintStart_toStartOf="@+id/date"
                 app:layout_constraintTop_toBottomOf="@+id/date"></TextView>
@@ -134,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="1dp"
                 android:hint="holiday_remark"
                 app:layout_constraintStart_toEndOf="@+id/type"
                 app:layout_constraintTop_toBottomOf="@+id/vag_number"></TextView>

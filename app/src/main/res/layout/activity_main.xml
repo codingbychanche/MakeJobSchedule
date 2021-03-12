@@ -161,6 +161,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/background_gradient_grey"
         android:elevation="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"></FrameLayout>
+        app:layout_constraintTop_toBottomOf="@+id/fragment_today_view"></FrameLayout>
 
 </androidx.constraintlayout.motion.widget.MotionLayout>
