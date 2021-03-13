@@ -1,10 +1,10 @@
 Creates calendar entries for your devices calendar app from a plain text file containing event dates...
 
-![](Shot2.png)
+![](Shot_2.png)
 
 Sample job schedule output as provided (old dos x.x software).
 
-![](Shot1.png)
+![](Shot_1.png)
 
 Browse through your job schedule.
 
