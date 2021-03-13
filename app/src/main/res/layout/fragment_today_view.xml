@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:hint="DAY"
             android:textSize="25dp"
-            app:layout_constraintBottom_toBottomOf="@+id/location"
+            app:layout_constraintBottom_toBottomOf="@+id/type"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/horiz_line_2"></TextView>
 

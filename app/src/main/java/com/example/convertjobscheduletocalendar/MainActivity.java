@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             openFileDialog();
 
         selectAllView.toggle();
-        readAndParseJobSchedule(pathToCurrentCalendarFile);
     }
 
     /**
@@ -193,6 +192,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
+
+        // Update todays event
+        getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
+
+        // refresh
+        readAndParseJobSchedule(pathToCurrentCalendarFile);
     }
 
     /**
@@ -244,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * to view options selected by the user
      *
      * @param calendarEntry
-     * @global jobScheduleListData  Holding calendar entries currently visible to the user.
+     * Inside the view model: jobScheduleListData  Holding calendar entries currently visible to the user.
      */
     private void addEvent(CalendarEntry calendarEntry) {
 
@@ -570,14 +575,13 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * Get and show today's event permanently
+     * Get and show today's event permanently.
+     *
+     * Updates the associated fragment.
      */
     private void getAndShowTodaysEvent(List<CalendarEntry> rawCalendar) {
-
-        // Update fragment showing the current day
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction ft = manager.beginTransaction();
-
         ft.setReorderingAllowed(true);
         ft.replace(R.id.fragment_today_view, new FragemtTodayView(), "Fragment_2");
         ft.commitAllowingStateLoss();

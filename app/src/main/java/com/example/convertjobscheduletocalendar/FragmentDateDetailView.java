@@ -30,7 +30,7 @@ public class FragmentDateDetailView extends Fragment {
     // UI
     ImageButton addThisEntryToCalendarView,addThisCourseToCalendarView, mailInquiryForThisEntryView, mailInquiryForTheWholeCourseView;
 
-    // Implement in order to invoke an appropriate reaction
+    // Implement in activity in order to invoke an appropriate action
     public interface DateDetailView {
         void hideFragmentCurrentlyShown();
 
@@ -149,7 +149,5 @@ public class FragmentDateDetailView extends Fragment {
         firstDayOfCourseView.setText(startDate);
         lastDayOfCourseView.setText(endDate);
         daysRunningView.setText(numberOfDaysRunning+"");
-
-
     }
 }

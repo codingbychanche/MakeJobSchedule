@@ -30,7 +30,7 @@
 
     <!-- Fragment date detail view -->
     <string name="date_detail_view_title">Ausgewählt:</string>
-    <string name="ok_button">Ok</string>
+    <string name="ok_button">Schließen</string>
     <string name="days_running_text">Tage</string>
     <string name="selected_entrys_details">Ausgewählter Eintrag:</string>
     <string name="this_entry_belongs_to_vag">Lehrgang:</string>
@@ -39,4 +39,5 @@
 
     <!-- Fragment showing todays event -->
     <string name="today_text">Heute:</string>
+    <string name="weekend_text">Wochenende :-)</string>
 </resources>
