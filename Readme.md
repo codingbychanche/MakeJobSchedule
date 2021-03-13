@@ -1,4 +1,8 @@
+Make Job Schedule
+=================
+
 Creates calendar entries for your devices calendar app from a plain text file containing event dates...
+
 
 ![](Shot_2.png)
 
