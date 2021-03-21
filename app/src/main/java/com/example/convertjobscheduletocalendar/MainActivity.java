@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         typeView = findViewById(R.id.type);
         holidayView = findViewById(R.id.holiday_remark);
 
-
         // ViewModel
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 

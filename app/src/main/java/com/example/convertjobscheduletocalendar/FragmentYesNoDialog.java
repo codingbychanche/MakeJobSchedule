@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,7 +23,7 @@ import androidx.fragment.app.DialogFragment;
 public class FragmentYesNoDialog extends DialogFragment {
 
     // Fragments UI components
-    TextView dialogText;
+    WebView webViewDialogText;
     EditText dialogTextInput;
     ImageView screenShoot;
     Button okButton;
@@ -117,7 +118,7 @@ public class FragmentYesNoDialog extends DialogFragment {
         // These are the fragments UI components
         // Gets all objects (Buttons, EditText etc..) and set's them on
         // their listeners.....
-        dialogText=(TextView) view.findViewById(R.id.dialog_text);
+        webViewDialogText = (WebView) view.findViewById(R.id.dialog_text);
         dialogTextInput=(EditText)view.findViewById(R.id.dialog_text_input);
         screenShoot=(ImageView) view.findViewById(R.id.screen_shot);
         okButton=(Button)view.findViewById(R.id.ok_button);
@@ -140,7 +141,9 @@ public class FragmentYesNoDialog extends DialogFragment {
         if ((options & SHOW_CONFIRM_DIALOG)==SHOW_CONFIRM_DIALOG)
             cancelButton.setVisibility(View.GONE);
 
-        dialogText.setText(getArguments().getString("dialogText"));
+        String dialogText=getArguments().getString("dialogText");
+        Log.v("TEXTTEXT",dialogText);
+        webViewDialogText.loadData(dialogText, "text/html", null);
         okButton.setText(getArguments().getString("yesText"));
         cancelButton.setText(getArguments().getString("noText"));
         data=getArguments().getInt("data");
