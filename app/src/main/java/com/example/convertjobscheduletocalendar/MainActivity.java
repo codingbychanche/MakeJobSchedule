@@ -1,6 +1,8 @@
 package com.example.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -8,12 +10,19 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.CalendarContract;
+import android.provider.Settings;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,9 +31,11 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.io.File;
+import java.security.acl.Permission;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -38,7 +49,7 @@ import berthold.filedialogtool.FileDialog;
  *
  * @author Berthold Fritz
  */
-public class MainActivity extends AppCompatActivity implements JobScheduleListAdapter.receieve, FragmentDateDetailView.DateDetailView {
+public class MainActivity extends AppCompatActivity implements JobScheduleListAdapter.receieve, FragmentDateDetailView.DateDetailView, FragmentYesNoDialog.getDataFromFragment {
 
     // Shared prefs
     SharedPreferences sharedPreferences;
@@ -77,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     // Misc
     private Context context;
 
+    // Custom confirm dialog
+    private static final int CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,23 +122,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         typeView = findViewById(R.id.type);
         holidayView = findViewById(R.id.holiday_remark);
 
+
         // ViewModel
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
         // Filter settings
         selectAllView.setChecked(mainActivityViewModel.getShowAllEvents());
-        selectInvalidView.setChecked(mainActivityViewModel.getShowInvalid());
-        selectValidView.setChecked(mainActivityViewModel.getShowValid());
-
-        //
-        // Update UI
-        //
-        //@rem: Shows how to check/ uncheck a checkbox programmatically@@
-        if (mainActivityViewModel.getIsShowOnlyFutureEvents())
-            showOnlyFutureEventsView.setChecked(true);
-        else
-            showOnlyFutureEventsView.setChecked(false);
-        //@@
 
         // Calendar list
         jobScheduleListRecyclerView = (RecyclerView) findViewById(R.id.job_schedule_list);
@@ -141,10 +144,80 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // him to pick a suitable file...
         pathToCurrentCalendarFile = currentStateRestoreFromSharedPref();
 
-        if (!readAndParseJobSchedule(pathToCurrentCalendarFile))
-            openFileDialog();
+        if (!readAndParseJobSchedule(pathToCurrentCalendarFile)) {
 
-        selectAllView.toggle();
+            // Permissions to access internal filesystem ('/SDCard')?
+            // THis is also checked, every time the user presses the
+            // menu- item 'load new job schedule'.
+            if (permissionIsDenied("READ_EXTERNAL_STORAGE")) {
+                String dialogText = getResources().getString(R.string.ask_for_device_permissions_file_system);
+                String ok = getResources().getString(R.string.PERM_OK_Button);
+                String cancel = getResources().getString(R.string.PERM_CANCEL_BUTTON);
+                showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
+            } else {
+                openFileDialog();
+            }
+        }
+    }
+
+    /**
+     * Checks if a permission is granted or not.
+     *
+     * @param permission
+     * @return true if the specified permission is granted.
+     */
+    private boolean permissionIsDenied(String permission) {
+        //@rem: Shows how to check permissions
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permission)
+                == PackageManager.PERMISSION_DENIED)
+            return true;
+        else
+            return false;
+        //@@
+    }
+
+    /**
+     * Shows a confirm dialog.
+     *
+     * @param reqCode
+     * @param kindOfDialog
+     * @param dialogText
+     * @param confirmButton
+     * @param cancelButton
+     */
+    private void showConfirmDialog(int reqCode, int kindOfDialog, String dialogText, String confirmButton, String cancelButton) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentYesNoDialog fragmentDeleteRegex =
+                FragmentYesNoDialog.newInstance(reqCode, kindOfDialog, null, dialogText, confirmButton, cancelButton);
+        fragmentDeleteRegex.show(fm, "fragment_dialog");
+    }
+
+    /**
+     * Callback for {@link FragmentYesNoDialog} events.
+     *
+     * @param reqCode
+     * @param dialogTextEntered
+     * @param buttonPressed
+     */
+    @Override
+    public void getDialogInput(int reqCode, String dialogTextEntered, String buttonPressed) {
+        // Grand permission?
+        if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS) {
+
+            if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
+
+                // @rem:Shows how to open the Android systems settings activity fro this app.
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+                //@@
+
+            } else {
+                String denied = getResources().getString(R.string.permission_denied);
+                Toast.makeText(MainActivity.this, denied, Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     /**
@@ -193,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             }
         });
 
-        // Update todays event
+        // Update today's event
         getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
 
         // refresh
@@ -248,8 +321,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * Add a calendar entry to the calendar according
      * to view options selected by the user
      *
-     * @param calendarEntry
-     * Inside the view model: jobScheduleListData  Holding calendar entries currently visible to the user.
+     * @param calendarEntry Inside the view model: jobScheduleListData  Holding calendar entries currently visible to the user.
      */
     private void addEvent(CalendarEntry calendarEntry) {
 
@@ -302,7 +374,13 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //noinspection SimplifiableIfStatement
         if (id == R.id.load) {
             currentStateSaveToSharedPref(pathToCurrentCalendarFile);
-            openFileDialog();
+            /*
+            if (permissionIsDenied("READ_EXTERNAL_STORAGE")) {
+                // Todo Even when permissions are allowed, this block is execuded, why. Seems this only works in "on Create"
+            } else
+            */
+
+                openFileDialog();
             return true;
         }
         if (id == R.id.info) {
@@ -502,8 +580,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     public void mailInquiryForThisCourse(int position) {
 
         String vagNumber = mainActivityViewModel.getJobScheduleListData().get(position).getVagNumber();
-        String courseNumber=mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
-        String originalEntry=mainActivityViewModel.getJobScheduleListData().get(position).getOrgiriginalEntry();
+        String courseNumber = mainActivityViewModel.getJobScheduleListData().get(position).getCourseNumber();
+        String originalEntry = mainActivityViewModel.getJobScheduleListData().get(position).getOrgiriginalEntry();
 
         // Get the current course
         List<CalendarEntry> thisCourseByVAGNumber = new ArrayList<CalendarEntry>();
@@ -511,15 +589,15 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         int numberOfEntriesFound = thisCourseByVAGNumber.size() - 1;
         int numberOfDaysRunning = thisCourseByVAGNumber.size();
 
-        String startDate=thisCourseByVAGNumber.get(0).getDate();
-        String startTime=thisCourseByVAGNumber.get(0).getStartTime();
-        String startLocation=thisCourseByVAGNumber.get(0).getLocation();
+        String startDate = thisCourseByVAGNumber.get(0).getDate();
+        String startTime = thisCourseByVAGNumber.get(0).getStartTime();
+        String startLocation = thisCourseByVAGNumber.get(0).getLocation();
 
-        String endDate=thisCourseByVAGNumber.get(numberOfEntriesFound).getDate();
-        String endTime=thisCourseByVAGNumber.get(numberOfEntriesFound).getEndTime();
+        String endDate = thisCourseByVAGNumber.get(numberOfEntriesFound).getDate();
+        String endTime = thisCourseByVAGNumber.get(numberOfEntriesFound).getEndTime();
 
-        String subject = "Anfrage zu VAG:" +vagNumber + " Kurs:" + courseNumber;
-        String message="Beginnt am "+ startDate+"//"+startTime+" Uhr und endet am "+endDate+" um "+endTime+" (Dauer "+numberOfDaysRunning+" Tage) Ort am ersten Tag:"+startLocation+" ORIGINAL:"+originalEntry;
+        String subject = "Anfrage zu VAG:" + vagNumber + " Kurs:" + courseNumber;
+        String message = "Beginnt am " + startDate + "//" + startTime + " Uhr und endet am " + endDate + " um " + endTime + " (Dauer " + numberOfDaysRunning + " Tage) Ort am ersten Tag:" + startLocation + " ORIGINAL:" + originalEntry;
 
         Intent email = new Intent(Intent.ACTION_SEND);
         email.putExtra(Intent.EXTRA_EMAIL, "");
@@ -576,7 +654,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
     /**
      * Get and show today's event permanently.
-     *
+     * <p>
      * Updates the associated fragment.
      */
     private void getAndShowTodaysEvent(List<CalendarEntry> rawCalendar) {
@@ -591,11 +669,10 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * Select a job schedule file via the file dialog tool.
      */
     private void openFileDialog() {
-        Intent i = new Intent(MainActivity.this, FileDialog.class);
 
+        Intent i = new Intent(MainActivity.this, FileDialog.class);
         i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.GET_FILE_NAME_AND_PATH);
         i.putExtra(FileDialog.OVERRIDE_LAST_PATH_VISITED, OVERRIDE_LAST_PATH_VISITED);
-        Log.v("INTENTINTENT", "" + i);
         startActivityForResult(i, ID_FILE_DIALOG);
     }
 

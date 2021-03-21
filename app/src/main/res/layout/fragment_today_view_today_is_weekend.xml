@@ -22,6 +22,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></TextView>
 
+        <TextView
+            android:id="@+id/date_of_today"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="DATE"
+            app:layout_constraintBottom_toBottomOf="@+id/day_of_week_weekend"
+            app:layout_constraintStart_toStartOf="@+id/date_weekend"></TextView>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/horiz_line_2"
             android:layout_width="match_parent"
@@ -39,7 +47,6 @@
             android:id="@+id/day_of_week_weekend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:hint="DAY"
             android:textSize="25dp"
             app:layout_constraintBottom_toBottomOf="@+id/imageView"
@@ -53,8 +60,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
             android:hint="date"
-            app:layout_constraintBottom_toBottomOf="@+id/day_of_week_weekend"
+            app:layout_constraintBottom_toTopOf="@+id/date_of_today"
             app:layout_constraintStart_toEndOf="@+id/day_of_week_weekend"
             app:layout_constraintTop_toTopOf="@+id/day_of_week_weekend"></TextView>
 

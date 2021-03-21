@@ -62,15 +62,15 @@ public class FragemtTodayView extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Context context=getActivity().getApplicationContext();
+        Context context = getActivity().getApplicationContext();
         mainActivityViewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
-        List <CalendarEntry> mycalendar= mainActivityViewModel.getMyCalendar().getRawCalendar();
+        List<CalendarEntry> mycalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
         int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
 
         if (todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY || todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
 
             // UI
-            TextView dayOfWeekView =view.findViewById(R.id.day_of_week);
+            TextView dayOfWeekView = view.findViewById(R.id.day_of_week);
             TextView dateView = view.findViewById(R.id.date);
             TextView startTimeView = view.findViewById(R.id.start_time);
             TextView endTimeView = view.findViewById(R.id.end_time);
@@ -80,6 +80,7 @@ public class FragemtTodayView extends Fragment {
             TextView typeView = view.findViewById(R.id.type);
             TextView holidayView = view.findViewById(R.id.holiday_remark);
 
+            //todo: Implement dedicated method inside the library module...
             for (CalendarEntry entry : mycalendar) {
                 if (entry.compareThisEntrysDateWith(todaysDate) == entry.HAS_SAME_DATE && entry.isValidEntry) {
                     int dayNameResourche = dayOfWeek[entry.getDayOfWeekForThisDate() - 1];
@@ -99,15 +100,23 @@ public class FragemtTodayView extends Fragment {
                 }
             }
         }
-        if (todaysDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || todaysDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY){
-            TextView dayOfWeekView=view.findViewById(R.id.day_of_week_weekend);
-            TextView dateView=view.findViewById(R.id.date_weekend);
+        if (todaysDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || todaysDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            TextView dayOfWeekView = view.findViewById(R.id.day_of_week_weekend);
+            TextView dateView = view.findViewById(R.id.date_weekend);
+            TextView todaysDateView = view.findViewById(R.id.date_of_today);
 
-            int dayNameResourche = dayOfWeek[todaysDate.get(Calendar.DAY_OF_WEEK)-1];
+            int dayNameResourche = dayOfWeek[todaysDate.get(Calendar.DAY_OF_WEEK) - 1];
             dayOfWeekView.setText(context.getString(dayNameResourche));
             dateView.setText(R.string.weekend_text);
 
-            //dateView.setText("WEEK");
+            // toDo implement dedicated method to form a date String inside the library module
+            String day, month, year;
+            day = todaysDate.get(Calendar.DAY_OF_MONTH) + ".";
+            month = todaysDate.get(Calendar.MONTH)+1 + ".";
+            year = todaysDate.get(Calendar.YEAR) + "";
+
+            todaysDateView.setText(day + month + year);
+
 
         }
     }

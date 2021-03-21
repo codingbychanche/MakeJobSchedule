@@ -40,4 +40,16 @@
     <!-- Fragment showing todays event -->
     <string name="today_text">Heute:</string>
     <string name="weekend_text">Wochenende :-)</string>
+
+    <!--Ask for device permissions -->
+    <string name="ask_for_device_permissions_file_system">Diese App hat keine Berechtigung für Lesezugriffe von ihrem internen Dateisystem.
+        Dabei handelt es sich um die Inhalte des Ordners \'SDCard\'. Die App benötigt die Berechtigung damit Sie ihre Einsatzpläne lesen kann.
+    Schreibzugriffe werden nicht benötigt. Wenn Sie diesen Dialog bestätigen, dann werden die Systemeinstellungen geöffnet. Wählen Sie dort bitte den
+    Punkt \'Berechtigungen\' und tippe auf \'Permissions -> Storage\'. Danach können Sie direkt zur App zurückkeheren indem Sie den \'Back- Button\' ihres Gerätes antippen.
+    </string>
+
+    <string name="permission_denied">Sie habe die erforderliche Berechtigung verweigert. Wenn Sie das ändern möchten, dann starten Sie die App bitte erneut.</string>
+
+    <string name="PERM_OK_Button">Zulassen</string>
+    <string name="PERM_CANCEL_BUTTON">Nein</string>
 </resources>
