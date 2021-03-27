@@ -50,7 +50,7 @@
     <p>Diese App darf nicht auf ihr internes Dateisystem zugreifen.
         Dabei handelt es sich um die Inhalte des Ordners <i>/SDCard</i>.</p>
 
-        <p>Die App benötigt die Berechtigung damit Sie ihre Einsatzpläne lesen kann. Schreibzugriffe werden nicht benötigt. Wenn Sie diesen Dialog bestätigen,
+        <p>Die App benötigt die Berechtigung damit sie ihre Einsatzpläne lesen kann. Schreibzugriffe werden nicht benötigt. Wenn Sie diesen Dialog bestätigen,
         dann werden die Systemeinstellungen geöffnet.</p>
 
         <p>Wählen Sie dort bitte den

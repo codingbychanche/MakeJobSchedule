@@ -146,8 +146,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         if (!readAndParseJobSchedule(pathToCurrentCalendarFile)) {
 
             // Permissions to access internal filesystem ('/SDCard')?
-            // THis is also checked, every time the user presses the
-            // menu- item 'load new job schedule'.
             if (permissionIsDenied("READ_EXTERNAL_STORAGE")) {
                 String dialogText = getResources().getString(R.string.ask_for_device_permissions_file_system);
                 String ok = getResources().getString(R.string.PERM_OK_Button);
@@ -202,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     public void getDialogInput(int reqCode, String dialogTextEntered, String buttonPressed) {
         // Grand permission?
         if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS) {
-
             if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
 
                 // @rem:Shows how to open the Android systems settings activity fro this app.
@@ -211,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 intent.setData(uri);
                 startActivity(intent);
                 //@@
-
             } else {
                 String denied = getResources().getString(R.string.permission_denied);
                 Toast.makeText(MainActivity.this, denied, Toast.LENGTH_LONG).show();
@@ -379,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             } else
             */
 
-                openFileDialog();
+            openFileDialog();
             return true;
         }
         if (id == R.id.info) {
@@ -668,7 +664,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * Select a job schedule file via the file dialog tool.
      */
     private void openFileDialog() {
-
         Intent i = new Intent(MainActivity.this, FileDialog.class);
         i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.GET_FILE_NAME_AND_PATH);
         i.putExtra(FileDialog.OVERRIDE_LAST_PATH_VISITED, OVERRIDE_LAST_PATH_VISITED);

@@ -119,6 +119,9 @@ public class FragmentYesNoDialog extends DialogFragment {
         // Gets all objects (Buttons, EditText etc..) and set's them on
         // their listeners.....
         webViewDialogText = (WebView) view.findViewById(R.id.dialog_text);
+        webViewDialogText.setVerticalScrollBarEnabled(true);
+        webViewDialogText.setHorizontalScrollBarEnabled(true);
+
         dialogTextInput=(EditText)view.findViewById(R.id.dialog_text_input);
         screenShoot=(ImageView) view.findViewById(R.id.screen_shot);
         okButton=(Button)view.findViewById(R.id.ok_button);
@@ -142,7 +145,6 @@ public class FragmentYesNoDialog extends DialogFragment {
             cancelButton.setVisibility(View.GONE);
 
         String dialogText=getArguments().getString("dialogText");
-        Log.v("TEXTTEXT",dialogText);
         webViewDialogText.loadData(dialogText, "text/html", null);
         okButton.setText(getArguments().getString("yesText"));
         cancelButton.setText(getArguments().getString("noText"));
