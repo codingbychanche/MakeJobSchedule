@@ -1,4 +1,4 @@
-package com.example.convertjobscheduletocalendar;
+package com.berthold.convertjobscheduletocalendar;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;

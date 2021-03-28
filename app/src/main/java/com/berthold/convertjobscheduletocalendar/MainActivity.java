@@ -1,28 +1,22 @@
-package com.example.convertjobscheduletocalendar;
+package com.berthold.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.CalendarContract;
 import android.provider.Settings;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,7 +29,6 @@ import android.widget.Toast;
 
 
 import java.io.File;
-import java.security.acl.Permission;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -46,6 +39,8 @@ import berthold.filedialogtool.FileDialog;
 
 /**
  * Reads a text file, checks for valid calendar entries and writes them to the devices calendar.
+ *
+ * Signed: With "GoogleKeyStore"- key... (opted in to Signing by Google)....
  *
  * @author Berthold Fritz
  */

@@ -1,10 +1,8 @@
-package com.example.convertjobscheduletocalendar;
+package com.berthold.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;

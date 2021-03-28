@@ -1,4 +1,4 @@
-package com.example.convertjobscheduletocalendar;
+package com.berthold.convertjobscheduletocalendar;
 
 import org.junit.Test;
 

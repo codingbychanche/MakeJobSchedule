@@ -1,4 +1,4 @@
-package com.example.convertjobscheduletocalendar;
+package com.berthold.convertjobscheduletocalendar;
 
 import android.os.Bundle;
 import android.transition.TransitionInflater;
