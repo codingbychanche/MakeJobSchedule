@@ -52,16 +52,8 @@ public class InfoActivity extends AppCompatActivity {
         final String current = getResources().getConfiguration().locale.getLanguage();
         Log.v("LOCALE", "Country:" + current);
 
-        // @rem: Shows how to retrieve the version- name tag from the 'build.gradle'- file@@
-        try {
-            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            String version = pInfo.versionName;
-            versionNameTagView.setText(version);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            versionNameTagView.setText("-");
-        }
-        //@@
+        String version=GetThisAppsVersion.thisVersion(getApplicationContext());
+        versionNameTagView.setText(version);
 
         // Load html...
         progress.setVisibility(View.VISIBLE);

@@ -155,6 +155,18 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 openFileDialog();
             }
         }
+
+        //
+        // Check which version is available in App- Store
+        //
+        VersionChecker vc=new VersionChecker();
+
+        try {
+            String latest = vc.execute().get();
+            Toast.makeText(getApplicationContext(), "Latest Version Code:"+latest, Toast.LENGTH_LONG).show();
+        } catch (Exception e){
+            Log.v("VERSION_CHECKER:",e+"");
+        }
     }
 
     /**
