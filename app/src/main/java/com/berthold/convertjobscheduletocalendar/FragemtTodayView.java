@@ -3,6 +3,7 @@ package com.berthold.convertjobscheduletocalendar;
 import android.content.Context;
 import android.os.Bundle;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,16 @@ import java.util.List;
 
 import CalendarMaker.CalendarEntry;
 import CalendarMaker.ConvertUmlaut;
+import CalendarMaker.MakeCalendar;
+
+/**
+ * Shows today's event.
+ */
 
 public class FragemtTodayView extends Fragment {
+
+    // Job schedule
+    List<CalendarEntry> mycalendar;
 
     // ViewModel
     static MainActivityViewModel mainActivityViewModel;
@@ -40,15 +49,24 @@ public class FragemtTodayView extends Fragment {
         long currentTimeInMillisec = System.currentTimeMillis();
         todaysDate = Calendar.getInstance();
         todaysDate.setTimeInMillis(currentTimeInMillisec);
+
+        mainActivityViewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
+        mycalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         if (todaysDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || todaysDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+            // Today is a weekend, Horray!
             return inflater.inflate(R.layout.fragment_today_view_today_is_weekend, container, false);
         else {
-            return inflater.inflate(R.layout.fragment_today_view, container, false);
+            // No Weekend, does an entry for today exist?
+            if(validEntryExists()) {
+                return inflater.inflate(R.layout.fragment_today_view, container, false);
+            }else
+                // Job schedule is empty!
+                return inflater.inflate(R.layout.fragment_today_view_no_valid_entry, container, false);
         }
     }
 
@@ -57,8 +75,7 @@ public class FragemtTodayView extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Context context = getActivity().getApplicationContext();
-        mainActivityViewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
-        List<CalendarEntry> mycalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
+
         int[] dayOfWeek = {R.string.so, R.string.mo, R.string.di, R.string.mi, R.string.don, R.string.fr, R.string.sa};
 
         if (todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY || todaysDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
@@ -110,8 +127,24 @@ public class FragemtTodayView extends Fragment {
             year = todaysDate.get(Calendar.YEAR) + "";
 
             todaysDateView.setText(day + month + year);
-
-
         }
+    }
+
+    /**
+     * Checks if a valid entry for todays date exists inside the current
+     * job schedule.
+     *
+     * @return true if entry exists an is a valid entry (e.g. has at least a date and a course number), false if not...
+     *
+     * toDo implement dedicated method inside library module...
+     */
+    private boolean validEntryExists() {
+        for (CalendarEntry e : mycalendar) {
+            if (e.compareThisEntrysDateWith(todaysDate) == e.HAS_SAME_DATE) {
+                if (e.isValidEntry)
+                return true;
+            }
+        }
+    return false;
     }
 }

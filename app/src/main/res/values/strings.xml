@@ -40,6 +40,7 @@
     <!-- Fragment showing todays event -->
     <string name="today_text">Heute:</string>
     <string name="weekend_text">Wochenende :-)</string>
+    <string name="todays_date_no_valid_entry">Nicht verplant...</string>
 
     <!--Ask for device permissions -->
     <!-- @rem:Shows hot to include html- strings into a string resource file@@ -->
