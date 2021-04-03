@@ -1,5 +1,9 @@
 package com.berthold.convertjobscheduletocalendar;
 
+import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
+
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
@@ -64,6 +68,24 @@ public class MainActivityViewModel extends ViewModel {
 
     public List<CalendarEntry> getJobScheduleListData() {
         return jobScheduleListData;
+    }
+
+    /**
+     * Returns the version from the app's Google Play store listing...
+     *
+     * @param c
+     * @return A String containing the version tag.
+     */
+    public String getAppVersionfromGooglePlay(Context c){
+        String latest;
+        VersionChecker vc=new VersionChecker();
+
+        try {
+            latest = vc.execute().get();
+        } catch (Exception e){
+            latest="-";
+        }
+        return latest;
     }
 
     // Filter settings

@@ -42,6 +42,12 @@
     <string name="weekend_text">Wochenende :-)</string>
     <string name="todays_date_no_valid_entry">Nicht verplant...</string>
 
+    <!-- Info activity -->
+    <string name="app_title">Einsatzplan</string>
+    <string name="version_text">Version:</string>
+    <string name="version_info_is_latest_version">Ihre app ist auf dem aktuellesten Stand. Es sind keine Updates im Play- Store vefügbar.</string>
+    <string name="version_info_update_available">Es ist eine neuere Version dieser App im Google Play Store verfügbar. Aktuelle Version:</string>
+
     <!--Ask for device permissions -->
     <!-- @rem:Shows hot to include html- strings into a string resource file@@ -->
     <string name="ask_for_device_permissions_file_system">

@@ -1,8 +1,10 @@
 package com.berthold.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -23,12 +25,15 @@ public class InfoActivity extends AppCompatActivity {
     // Info
     private static String tag;
 
+    // UI
+    private MainActivityViewModel mainActivityViewModel;
+
     // Filesystem
     private BufferedReader bufferedReader;
 
     // Html
     private StringBuilder htmlSite;
-    private TextView versionNameTagView;
+    private TextView versionNameTagView,updateInfoView;
     private WebView webView;
     private ProgressBar progress;
 
@@ -37,10 +42,14 @@ public class InfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
 
+        // ViewModel
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+
         // UI
         final Handler handler = new Handler();
         Context context = getApplicationContext();
 
+        updateInfoView=findViewById(R.id.info_new_version_available);
         versionNameTagView=findViewById(R.id.version_name_tag_display);
         webView = (WebView) findViewById(R.id.browser);
         progress = (ProgressBar) findViewById(R.id.html_load_progress);
@@ -50,8 +59,18 @@ public class InfoActivity extends AppCompatActivity {
         final String current = getResources().getConfiguration().locale.getLanguage();
         Log.v("LOCALE", "Country:" + current);
 
-        String version=GetThisAppsVersion.thisVersion(getApplicationContext());
-        versionNameTagView.setText(version);
+        // Check if there is an update available
+        String currentVersion=GetThisAppsVersion.thisVersion(getApplicationContext());
+        versionNameTagView.setText(currentVersion);
+
+        String latestVersionInGooglePlay=mainActivityViewModel.getAppVersionfromGooglePlay(getApplicationContext());
+
+        if (latestVersionInGooglePlay.equals(currentVersion))
+            updateInfoView.setText(getResources().getText(R.string.version_info_is_latest_version));
+        else {
+            updateInfoView.setTextColor(Color.RED);
+            updateInfoView.setText(getResources().getText(R.string.version_info_update_available) + latestVersionInGooglePlay);
+        }
 
         // Load html...
         progress.setVisibility(View.VISIBLE);
