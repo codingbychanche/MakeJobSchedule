@@ -1,6 +1,7 @@
 package com.berthold.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
@@ -33,7 +34,7 @@ public class InfoActivity extends AppCompatActivity {
 
     // Html
     private StringBuilder htmlSite;
-    private TextView versionNameTagView,updateInfoView;
+    private TextView updateInfoView;
     private WebView webView;
     private ProgressBar progress;
 
@@ -50,7 +51,6 @@ public class InfoActivity extends AppCompatActivity {
         Context context = getApplicationContext();
 
         updateInfoView=findViewById(R.id.info_new_version_available);
-        versionNameTagView=findViewById(R.id.version_name_tag_display);
         webView = (WebView) findViewById(R.id.browser);
         progress = (ProgressBar) findViewById(R.id.html_load_progress);
 
@@ -61,15 +61,15 @@ public class InfoActivity extends AppCompatActivity {
 
         // Check if there is an update available
         String currentVersion=GetThisAppsVersion.thisVersion(getApplicationContext());
-        versionNameTagView.setText(currentVersion);
+        getSupportActionBar().setSubtitle("Version:"+currentVersion);
 
         String latestVersionInGooglePlay=mainActivityViewModel.getAppVersionfromGooglePlay(getApplicationContext());
 
-        if (!latestVersionInGooglePlay.equals(currentVersion)) {
+       if (latestVersionInGooglePlay.equals(currentVersion)) {
             //updateInfoView.setText(getResources().getText(R.string.version_info_is_latest_version));
-            updateInfoView.setTextColor(Color.RED);
-            updateInfoView.setText(getResources().getText(R.string.version_info_update_available) + latestVersionInGooglePlay);
-        }
+           updateInfoView.setText(HtmlCompat.fromHtml(getResources().getText(R.string.version_info_ok)+"",0));
+        } else
+           updateInfoView.setText(HtmlCompat.fromHtml(getResources().getText(R.string.version_info_update_available) + latestVersionInGooglePlay,0));
 
         // Load html...
         progress.setVisibility(View.VISIBLE);
@@ -95,13 +95,6 @@ public class InfoActivity extends AppCompatActivity {
 
                 } catch (IOException io) {
                     Log.v("Info", io.toString());
-                }
-
-                // Wait a vew millisec's to enable the main UI thread
-                // to react.
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
                 }
 
                 // Show

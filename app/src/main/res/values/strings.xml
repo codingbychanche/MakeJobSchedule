@@ -45,19 +45,32 @@
     <!-- Info activity -->
     <string name="app_title">Einsatzplan</string>
     <string name="version_text">Version:</string>
-    <string name="version_info_is_latest_version">Ihre app ist auf dem aktuellesten Stand. Es sind keine Updates im Play- Store vefügbar.</string>
-    <string name="version_info_update_available">Es ist eine neuere Version dieser App im Google Play Store verfügbar. Aktuelle Version:</string>
+
+    <string name="version_info_update_available">
+     <![CDATA[
+        Es ist eine neuere Version dieser App im Google Play Store verfügbar. Einsatzplan Version:
+        ]]>
+    </string>
+
+    <string name="version_info_ok">
+     <![CDATA[
+        Ihre App ist auf dem neustem Stand.
+        ]]>
+    </string>
+
 
     <!--Ask for device permissions -->
     <!-- @rem:Shows hot to include html- strings into a string resource file@@ -->
     <string name="ask_for_device_permissions_file_system">
+
+
 
         <![CDATA[<p><b>Fehlende Berechtigung</b></p>
 
     <p>Diese App darf nicht auf ihr internes Dateisystem zugreifen.
         Dabei handelt es sich um die Inhalte des Ordners <i>/SDCard</i>.</p>
 
-        <p>Die App benötigt die Berechtigung damit sie ihre Einsatzpläne lesen kann. Schreibzugriffe werden nicht benötigt. Wenn Sie diesen Dialog bestätigen,
+        <p>Die App benötigt die Berechtigung damit sie ihre Einsatzpläne lesen kann. Schreibzugriffe wer!den nicht benötigt. Wenn Sie diesen Dialog bestätigen,
         dann werden die Systemeinstellungen geöffnet.</p>
 
         <p>Wählen Sie dort bitte den
