@@ -57,7 +57,7 @@ public class InfoActivity extends AppCompatActivity {
         // @rem:Get current locale (determine language from Androids settings@@
         //final Locale current=getResources().getConfiguration().locale;
         final String current = getResources().getConfiguration().locale.getLanguage();
-        Log.v("LOCALE", "Country:" + current);
+        //Log.v("LOCALE", "Country:" + current);
 
         // Check if there is an update available
         String currentVersion=GetThisAppsVersion.thisVersion(getApplicationContext());
@@ -65,9 +65,8 @@ public class InfoActivity extends AppCompatActivity {
 
         String latestVersionInGooglePlay=mainActivityViewModel.getAppVersionfromGooglePlay(getApplicationContext());
 
-        if (latestVersionInGooglePlay.equals(currentVersion))
-            updateInfoView.setText(getResources().getText(R.string.version_info_is_latest_version));
-        else {
+        if (!latestVersionInGooglePlay.equals(currentVersion)) {
+            //updateInfoView.setText(getResources().getText(R.string.version_info_is_latest_version));
             updateInfoView.setTextColor(Color.RED);
             updateInfoView.setText(getResources().getText(R.string.version_info_update_available) + latestVersionInGooglePlay);
         }
@@ -82,7 +81,6 @@ public class InfoActivity extends AppCompatActivity {
                     htmlSite = new StringBuilder();
 
                     // @rem:Shows how to load data from androids 'assests'- folder@@
-
                     if (current.equals("de") || current.equals("en")) {
                         if (current.equals("de"))
                             bufferedReader = new BufferedReader(new InputStreamReader(getAssets().open("InfoPage-de.html")));
@@ -102,7 +100,7 @@ public class InfoActivity extends AppCompatActivity {
                 // Wait a vew millisec's to enable the main UI thread
                 // to react.
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                 }
 

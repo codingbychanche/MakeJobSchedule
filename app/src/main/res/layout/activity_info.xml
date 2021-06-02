@@ -4,6 +4,8 @@
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:paddingLeft="16dp"
+    android:background="#ffffff"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     tools:context=".InfoActivity">
@@ -11,11 +13,10 @@
 
     <TextView
         android:id="@+id/textView12"
-        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:text="@string/version_text"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></TextView>
 
@@ -36,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:hint="UPDATE_INFO"
-        app:layout_constraintStart_toStartOf="@+id/textView12"
+        app:layout_constraintLeft_toLeftOf="@+id/browser"
         app:layout_constraintTop_toBottomOf="@+id/textView12"></TextView>
 
     <WebView
@@ -44,9 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="600dp"
         android:layout_below="@+id/version_name_tag_display"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/info_new_version_available"></WebView>
