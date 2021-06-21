@@ -8,8 +8,8 @@ android {
         applicationId "com.berthold.convertjobscheduletocalendar"
         minSdkVersion 22
         targetSdkVersion 30
-        versionCode 17
-        versionName "1.7"
+        versionCode 175
+        versionName "1.75"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

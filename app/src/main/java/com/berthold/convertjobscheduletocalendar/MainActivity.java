@@ -28,6 +28,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.berthold.convertjobscheduletocalendar.FragmentDateDetailView;
+import com.berthold.convertjobscheduletocalendar.FragmentYesNoDialog;
+import com.berthold.convertjobscheduletocalendar.JobScheduleListAdapter;
+import com.berthold.convertjobscheduletocalendar.MainActivityViewModel;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
