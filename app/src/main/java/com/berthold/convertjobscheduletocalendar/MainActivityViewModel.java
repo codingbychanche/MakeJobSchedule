@@ -61,7 +61,6 @@ public class MainActivityViewModel extends ViewModel {
         return currentJobScheduleItemsIndex;
     }
 
-
     public void setJobScheduleListData(List<CalendarEntry> jobScheduleListData) {
         this.jobScheduleListData = jobScheduleListData;
     }
@@ -120,6 +119,4 @@ public class MainActivityViewModel extends ViewModel {
     public boolean getShowInvalid() {
         return showInvalid;
     }
-
-
 }
