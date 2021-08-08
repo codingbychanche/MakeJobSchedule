@@ -24,6 +24,7 @@ public class MainActivityViewModel extends ViewModel {
     private boolean showAllEvents = true;
     private boolean showValid = false;
     private boolean showInvalid = false;
+    private String currentCourseNumberDisplayed,currentVAGNumberDisplayed;
 
     /**
      * Initializes the current job schedule.
@@ -87,6 +88,14 @@ public class MainActivityViewModel extends ViewModel {
         return latest;
     }
 
+    public List<String> getAllCourseNumbers(){
+        return mycalendar.getListOfAllCourseNumbers();
+    }
+
+    public List<String> getAllVAGNumbers(){
+        return mycalendar.getListOfAllVAGNumbers();
+    }
+
     // Filter settings
     public void setShowOnlyFutureEvents(boolean state) {
         isShowOnlyFutureEvents = state;
@@ -119,4 +128,12 @@ public class MainActivityViewModel extends ViewModel {
     public boolean getShowInvalid() {
         return showInvalid;
     }
+
+    public void setCurrentCourseNumberDisplayed(String c){currentCourseNumberDisplayed=c;}
+
+    public String getCurrentCourseNumberDisplayed(){return currentCourseNumberDisplayed;}
+
+    public void setCurrentVAGNumberDisplayed(String v){currentVAGNumberDisplayed=v;}
+
+    public String getCurrentVAGNumberDisplayed(){return currentVAGNumberDisplayed;}
 }

@@ -26,7 +26,7 @@ public class FragmentYesNoDialog extends DialogFragment {
     EditText dialogTextInput;
     ImageView screenShoot;
     Button okButton;
-    Button      cancelButton;
+    Button cancelButton;
 
     int reqCode;                       // Identifies the fragment in callback method of calling activity
     int data;                          // Data (e.g. key1 if database operation...)

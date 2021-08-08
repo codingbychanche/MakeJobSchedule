@@ -20,10 +20,15 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     TextView loctionView;
     TextView typeView;
     TextView holidayView;
+    Spinner courseNumbersList,vagNumbersList;
 
     // Misc
     private Context context;
@@ -121,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         loctionView = findViewById(R.id.location);
         typeView = findViewById(R.id.type);
         holidayView = findViewById(R.id.holiday_remark);
+        courseNumbersList = findViewById(R.id.list_of_course_numbers);
+        vagNumbersList = findViewById(R.id.list_of_vag_numbers);
 
         // ViewModel
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
@@ -266,6 +274,52 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         // refresh
         readAndParseJobSchedule(pathToCurrentCalendarFile);
+
+        //
+        // populate drop down list showing all course numbers
+        //
+        List<String> c=mainActivityViewModel.getAllCourseNumbers();
+        String [] allCourseNumbers=new String [c.size()];
+        c.toArray(allCourseNumbers);
+        ArrayAdapter<String> adapterC = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, allCourseNumbers);
+        courseNumbersList.setAdapter(adapterC);
+
+        courseNumbersList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.v("SPINNER",courseNumbersList.getItemAtPosition(position)+"");
+                mainActivityViewModel.setCurrentCourseNumberDisplayed(courseNumbersList.getItemAtPosition(position).toString());
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.v("SPINNER"," No course number selected for filtering");
+            }
+        });
+
+        //
+        // populate drop down list showing all vag numbers
+        //
+        List<String> v=mainActivityViewModel.getAllVAGNumbers();
+        final String [] allVagNumbers=new String [v.size()];
+        v.toArray(allVagNumbers);
+        ArrayAdapter<String> adapterV = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, allVagNumbers);
+        vagNumbersList.setAdapter(adapterV);
+
+        vagNumbersList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.v("SPINNER",vagNumbersList.getItemAtPosition(position)+"");
+                mainActivityViewModel.setCurrentVAGNumberDisplayed(vagNumbersList.getItemAtPosition(position).toString());
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.v("SPINNER"," No vag number selected for filtering");
+            }
+        });
     }
 
     /**
@@ -284,7 +338,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         // Get unsorted, unfiltered calendar
         rawCalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
-
         getAndShowTodaysEvent(rawCalendar);
 
         long currentTimeInMillisec = System.currentTimeMillis();
@@ -294,13 +347,16 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         } else {
             for (CalendarEntry calendarEntry : rawCalendar) {
 
-                Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
+                //if (calendarEntry.getVagNumber().equals(mainActivityViewModel.getCurrentVAGNumberDisplayed()))
+                //{
+                    Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
 
-                if (showOnlyFutureEventsView.isChecked()) {
-                    if (currentEventTimeInMillisec >= currentTimeInMillisec)
+                    if (showOnlyFutureEventsView.isChecked()) {
+                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
+                            addEvent(calendarEntry);
+                    } else
                         addEvent(calendarEntry);
-                } else
-                    addEvent(calendarEntry);
+                //}
             }
         }
         jobScheduleListAdapter.notifyDataSetChanged();
