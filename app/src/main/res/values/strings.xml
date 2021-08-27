@@ -58,6 +58,20 @@
         ]]>
     </string>
 
+    <string name="dialog_new_version_available">
+        <![CDATA[<p><b>Neue Version verfügbar</b></p>
+
+        <p>Im <i>Google Play Store</i> ist eine überarbeitete Version dieser <i>App</i> verfügbar.</p>
+
+        <p>Wenn Sie möchten, dann können sie von hier aus direkt in den <i>Google Play Store</i> wechseln und das Update durchführen.</p>
+
+        <p>Ihre Einstellung und gespeicherten Daten bleiben erhalten.</p>
+
+        Neue Version:]]>
+    </string>
+
+
+
 
     <!--Ask for device permissions -->
     <!-- @rem:Shows hot to include html- strings into a string resource file@@ -->
@@ -83,4 +97,7 @@
 
     <string name="PERM_OK_Button">Zulassen</string>
     <string name="PERM_CANCEL_BUTTON">Nein</string>
+
+    <string name="do_update_confirm_button">Update</string>
+    <string name="no_udate_button">Nein,danke</string>
 </resources>

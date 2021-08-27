@@ -2,6 +2,7 @@ package com.berthold.convertjobscheduletocalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
     // Custom confirm dialog
     private static final int CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS = 1;
+    private static final int CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +166,31 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         }
 
         //
+        // Check if there is a newer version of this app available at the play store
+        //
+
+        Thread t=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(10000);
+                }catch (Exception e){}
+
+                String currentVersion=GetThisAppsVersion.thisVersion(getApplicationContext());
+                String latestVersionInGooglePlay=mainActivityViewModel.getAppVersionfromGooglePlay(getApplicationContext());
+
+                if (!latestVersionInGooglePlay.equals(currentVersion)) {
+                    String dialogText = getResources().getString(R.string.dialog_new_version_available)+" "+latestVersionInGooglePlay;
+                    String ok = getResources().getString(R.string.do_update_confirm_button);
+                    String cancel = getResources().getString(R.string.no_udate_button);
+                    showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
+                }
+            }
+        });
+        t.start();
+
+
+        //
         // Filter settings
         //
         radioGroupViewFilters.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -225,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 String s[]=vagAndCourseN.split(",");
                 String vag;
                 if (s.length==2)
-                 vag=s[1];
+                    vag=s[1];
                 else
                     vag="*";
 
@@ -282,8 +309,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     @Override
     public void getDialogInput(int reqCode, String dialogTextEntered, String buttonPressed) {
+
+        //
         // Grand permission?
+        //
         if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS) {
+
             if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
 
                 // @rem:Shows how to open the Android systems settings activity fro this app.
@@ -295,6 +326,16 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             } else {
                 String denied = getResources().getString(R.string.permission_denied);
                 Toast.makeText(MainActivity.this, denied, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        //
+        // Update this app?
+        //
+        if(reqCode==CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE){
+            if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
+                Intent Getintent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.berthold.convertjobscheduletocalendar&hl=de"));
+                startActivity(Getintent);
             }
         }
     }
@@ -331,10 +372,10 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             return false;
         } else {
 
-           String vagNumber= mainActivityViewModel.getCurrentVAGNumberDisplayed();
-           Log.v("VAGVAG",vagNumber);
+            String vagNumber= mainActivityViewModel.getCurrentVAGNumberDisplayed();
+            Log.v("VAGVAG",vagNumber);
 
-           for (CalendarEntry calendarEntry : rawCalendar) {
+            for (CalendarEntry calendarEntry : rawCalendar) {
 
                 Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
 
