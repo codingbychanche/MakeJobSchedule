@@ -16,6 +16,10 @@ Browse through your job schedule. Each entry can be viewed in detail. You can ch
 
 Add selected events to your devices calendar app.
 
+![](Shot_3.png)
+
+Choose from a whide range of filter options. Seen here: Select specific course by its unique key (in this case, it's so called VAG- Number).
+
 
 
 
