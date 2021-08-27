@@ -24,7 +24,7 @@ public class MainActivityViewModel extends ViewModel {
     private boolean showAllEvents = true;
     private boolean showValid = false;
     private boolean showInvalid = false;
-    private String currentCourseNumberDisplayed,currentVAGNumberDisplayed;
+    private String currentCourseNumberDisplayed, currentVAGNumberDisplayed;
 
     /**
      * Initializes the current job schedule.
@@ -76,24 +76,24 @@ public class MainActivityViewModel extends ViewModel {
      * @param c
      * @return A String containing the version tag.
      */
-    public String getAppVersionfromGooglePlay(Context c){
+    public String getAppVersionfromGooglePlay(Context c) {
         String latest;
-        VersionChecker vc=new VersionChecker();
+        VersionChecker vc = new VersionChecker();
 
         try {
             latest = vc.execute().get();
-        } catch (Exception e){
-            latest="-";
+        } catch (Exception e) {
+            latest = "-";
         }
         return latest;
     }
 
-    public List<String> getAllCourseNumbers(){
-        return mycalendar.getListOfAllCourseNumbers();
+    public List<String> getAllCourseNumbers(String vagNumber) {
+        return mycalendar.getListOfAllCourseNumbers(vagNumber);
     }
 
-    public List<String> getAllVAGNumbers(){
-        return mycalendar.getListOfAllVAGNumbers();
+    public List<String> getAllVAGNumbers(String courseNumber) {
+        return mycalendar.getCourseList();
     }
 
     // Filter settings
@@ -129,11 +129,22 @@ public class MainActivityViewModel extends ViewModel {
         return showInvalid;
     }
 
-    public void setCurrentCourseNumberDisplayed(String c){currentCourseNumberDisplayed=c;}
+    public void setCurrentCourseNumberDisplayed(String c) {
+        currentCourseNumberDisplayed = c;
+    }
 
-    public String getCurrentCourseNumberDisplayed(){return currentCourseNumberDisplayed;}
+    public String getCurrentCourseNumberDisplayed() {
+        return currentCourseNumberDisplayed;
+    }
 
-    public void setCurrentVAGNumberDisplayed(String v){currentVAGNumberDisplayed=v;}
+    public void setCurrentVAGNumberDisplayed(String v) {
+        currentVAGNumberDisplayed = v;
+    }
 
-    public String getCurrentVAGNumberDisplayed(){return currentVAGNumberDisplayed;}
+    public String getCurrentVAGNumberDisplayed() {
+        if (currentVAGNumberDisplayed==null)
+            return "*";
+        else
+            return currentVAGNumberDisplayed;
+    }
 }

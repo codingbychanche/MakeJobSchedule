@@ -55,30 +55,17 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:text="Nur künftige"
-            app:layout_constraintBottom_toBottomOf="@+id/list_of_course_numbers"
             app:layout_constraintStart_toStartOf="@+id/radioGroupViewFilter"
-            app:layout_constraintTop_toTopOf="@+id/list_of_course_numbers"></CheckBox>
-
-        <Spinner
-            android:id="@+id/list_of_course_numbers"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@android:drawable/btn_dropdown"
-            android:spinnerMode="dropdown"
-            app:layout_constraintStart_toEndOf="@+id/show_only_future_events"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroupViewFilter" />
+            app:layout_constraintTop_toBottomOf="@+id/radioGroupViewFilter"></CheckBox>
 
         <Spinner
             android:id="@+id/list_of_vag_numbers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown"
-            app:layout_constraintStart_toEndOf="@+id/list_of_course_numbers"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroupViewFilter" />
+            app:layout_constraintStart_toStartOf="@+id/show_only_future_events"
+            app:layout_constraintTop_toBottomOf="@+id/horiz_line" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/horiz_line"
@@ -88,7 +75,7 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingBottom="5dp"
-            app:layout_constraintTop_toBottomOf="@+id/list_of_course_numbers"
+            app:layout_constraintTop_toBottomOf="@+id/show_only_future_events"
             tools:context=".MainActivity"
             tools:layout_editor_absoluteX="5dp"></androidx.constraintlayout.widget.ConstraintLayout>
 

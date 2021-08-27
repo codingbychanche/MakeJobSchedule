@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     TextView loctionView;
     TextView typeView;
     TextView holidayView;
-    Spinner courseNumbersList,vagNumbersList;
+    Spinner vagNumbersList;
 
     // Misc
     private Context context;
@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         loctionView = findViewById(R.id.location);
         typeView = findViewById(R.id.type);
         holidayView = findViewById(R.id.holiday_remark);
-        courseNumbersList = findViewById(R.id.list_of_course_numbers);
         vagNumbersList = findViewById(R.id.list_of_vag_numbers);
 
         // ViewModel
@@ -163,6 +162,83 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 openFileDialog();
             }
         }
+
+        //
+        // Filter settings
+        //
+        radioGroupViewFilters.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                mainActivityViewModel.setShowAllEvents(false);
+                mainActivityViewModel.setShowValid(false);
+                mainActivityViewModel.setShowInvalid(false);
+                switch (checkedId) {
+                    case R.id.select_all:
+                        mainActivityViewModel.setShowAllEvents(true);
+                        break;
+
+                    case R.id.select_invalid:
+                        mainActivityViewModel.setShowInvalid(true);
+                        break;
+
+                    case R.id.select_valid:
+                        mainActivityViewModel.setShowValid(true);
+                        break;
+                }
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                jobScheduleListAdapter.notifyDataSetChanged();
+            }
+        });
+
+        //
+        // Show only future events?
+        //
+        showOnlyFutureEventsView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mainActivityViewModel.setShowOnlyFutureEvents(isChecked);
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                jobScheduleListAdapter.notifyDataSetChanged();
+            }
+        });
+
+        // Update today's event
+        getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
+
+        // refresh
+        readAndParseJobSchedule(pathToCurrentCalendarFile);
+
+        //
+        // Listen to spinner showing all vag numbers
+        //
+        List<String> v=mainActivityViewModel.getAllVAGNumbers("");
+        final String [] courseList=new String [v.size()];
+        v.toArray(courseList);
+        ArrayAdapter<String> adapterV = new ArrayAdapter<>(this, R.layout.spinner_layout, courseList);
+        vagNumbersList.setAdapter(adapterV);
+
+        vagNumbersList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String vagAndCourseN=vagNumbersList.getItemAtPosition(position).toString();
+
+                String s[]=vagAndCourseN.split(",");
+                String vag;
+                if (s.length==2)
+                 vag=s[1];
+                else
+                    vag="*";
+
+                mainActivityViewModel.setCurrentVAGNumberDisplayed(vag);
+                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                Log.v("SPINNER"," vag number selected"+vag);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.v("SPINNER"," No vag number selected for filtering");
+            }
+        });
     }
 
     /**
@@ -229,97 +305,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     @Override
     protected void onResume() {
         super.onResume();
-
-        //
-        // Filter settings
-        //
-        radioGroupViewFilters.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                mainActivityViewModel.setShowAllEvents(false);
-                mainActivityViewModel.setShowValid(false);
-                mainActivityViewModel.setShowInvalid(false);
-                switch (checkedId) {
-                    case R.id.select_all:
-                        mainActivityViewModel.setShowAllEvents(true);
-                        break;
-
-                    case R.id.select_invalid:
-                        mainActivityViewModel.setShowInvalid(true);
-                        break;
-
-                    case R.id.select_valid:
-                        mainActivityViewModel.setShowValid(true);
-                        break;
-                }
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
-                jobScheduleListAdapter.notifyDataSetChanged();
-            }
-        });
-
-        //
-        // Show only future events?
-        //
-        showOnlyFutureEventsView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mainActivityViewModel.setShowOnlyFutureEvents(isChecked);
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
-                jobScheduleListAdapter.notifyDataSetChanged();
-            }
-        });
-
-        // Update today's event
-        getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
-
-        // refresh
-        readAndParseJobSchedule(pathToCurrentCalendarFile);
-
-        //
-        // populate drop down list showing all course numbers
-        //
-        List<String> c=mainActivityViewModel.getAllCourseNumbers();
-        String [] allCourseNumbers=new String [c.size()];
-        c.toArray(allCourseNumbers);
-        ArrayAdapter<String> adapterC = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, allCourseNumbers);
-        courseNumbersList.setAdapter(adapterC);
-
-        courseNumbersList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.v("SPINNER",courseNumbersList.getItemAtPosition(position)+"");
-                mainActivityViewModel.setCurrentCourseNumberDisplayed(courseNumbersList.getItemAtPosition(position).toString());
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.v("SPINNER"," No course number selected for filtering");
-            }
-        });
-
-        //
-        // populate drop down list showing all vag numbers
-        //
-        List<String> v=mainActivityViewModel.getAllVAGNumbers();
-        final String [] allVagNumbers=new String [v.size()];
-        v.toArray(allVagNumbers);
-        ArrayAdapter<String> adapterV = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, allVagNumbers);
-        vagNumbersList.setAdapter(adapterV);
-
-        vagNumbersList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.v("SPINNER",vagNumbersList.getItemAtPosition(position)+"");
-                mainActivityViewModel.setCurrentVAGNumberDisplayed(vagNumbersList.getItemAtPosition(position).toString());
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.v("SPINNER"," No vag number selected for filtering");
-            }
-        });
     }
 
     /**
@@ -345,18 +330,29 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         if (mainActivityViewModel.getMyCalendar().hasError()) {
             return false;
         } else {
-            for (CalendarEntry calendarEntry : rawCalendar) {
 
-                //if (calendarEntry.getVagNumber().equals(mainActivityViewModel.getCurrentVAGNumberDisplayed()))
-                //{
-                    Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
+           String vagNumber= mainActivityViewModel.getCurrentVAGNumberDisplayed();
+           Log.v("VAGVAG",vagNumber);
 
+           for (CalendarEntry calendarEntry : rawCalendar) {
+
+                Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
+
+                if (vagNumber.equals("*")){
                     if (showOnlyFutureEventsView.isChecked()) {
                         if (currentEventTimeInMillisec >= currentTimeInMillisec)
                             addEvent(calendarEntry);
                     } else
                         addEvent(calendarEntry);
-                //}
+
+                } else if (calendarEntry.getVagNumber().equals(vagNumber))
+                {
+                    if (showOnlyFutureEventsView.isChecked()) {
+                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
+                            addEvent(calendarEntry);
+                    } else
+                        addEvent(calendarEntry);
+                }
             }
         }
         jobScheduleListAdapter.notifyDataSetChanged();
@@ -389,6 +385,14 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             if (!calendarEntry.isValidEntry)
                 mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
         }
+    }
+
+    /**
+     *
+     * @param courseNumber
+     */
+    private void addAllVagNumbersToSpinner(String courseNumber){
+
     }
 
     @Override
