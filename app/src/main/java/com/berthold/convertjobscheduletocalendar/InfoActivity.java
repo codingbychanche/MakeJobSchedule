@@ -39,7 +39,7 @@ public class InfoActivity extends AppCompatActivity {
     private ProgressBar progress;
 
     // Version info
-    private  String currentVersion;
+    private String currentVersion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +53,7 @@ public class InfoActivity extends AppCompatActivity {
         final Handler handler = new Handler();
         Context context = getApplicationContext();
 
-        updateInfoView=findViewById(R.id.info_new_version_available);
+        updateInfoView = findViewById(R.id.info_new_version_available);
         webView = (WebView) findViewById(R.id.browser);
         progress = (ProgressBar) findViewById(R.id.html_load_progress);
 
@@ -63,8 +63,8 @@ public class InfoActivity extends AppCompatActivity {
         //Log.v("LOCALE", "Country:" + current);
 
         // Check if there is an update available
-       currentVersion=GetThisAppsVersion.thisVersion(getApplicationContext());
-        getSupportActionBar().setSubtitle("Version:"+currentVersion);
+        currentVersion = GetThisAppsVersion.thisVersion(getApplicationContext());
+        getSupportActionBar().setSubtitle("Version:" + currentVersion);
 
         // Load html...
         progress.setVisibility(View.VISIBLE);
@@ -99,13 +99,13 @@ public class InfoActivity extends AppCompatActivity {
                         progress.setVisibility(View.GONE);
                         webView.loadData(htmlSite.toString(), "text/html", null);
 
-                        String latestVersionInGooglePlay=mainActivityViewModel.getAppVersionfromGooglePlay(getApplicationContext());
+                        String latestVersionInGooglePlay = mainActivityViewModel.getAppVersionfromGooglePlay(getApplicationContext());
 
                         if (latestVersionInGooglePlay.equals(currentVersion)) {
                             //updateInfoView.setText(getResources().getText(R.string.version_info_is_latest_version));
-                            updateInfoView.setText(HtmlCompat.fromHtml(getResources().getText(R.string.version_info_ok)+"",0));
+                            updateInfoView.setText(HtmlCompat.fromHtml(getResources().getText(R.string.version_info_ok) + "", 0));
                         } else
-                            updateInfoView.setText(HtmlCompat.fromHtml(getResources().getText(R.string.version_info_update_available) + latestVersionInGooglePlay,0));
+                            updateInfoView.setText(HtmlCompat.fromHtml(getResources().getText(R.string.version_info_update_available) + latestVersionInGooglePlay, 0));
                     }
                 });
             }
