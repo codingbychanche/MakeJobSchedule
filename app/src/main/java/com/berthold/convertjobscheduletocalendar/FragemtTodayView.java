@@ -14,6 +14,7 @@ import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -51,6 +52,7 @@ public class FragemtTodayView extends Fragment {
         todaysDate.setTimeInMillis(currentTimeInMillisec);
 
         mainActivityViewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
+        mycalendar=new ArrayList<>();
         mycalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
     }
 

@@ -43,7 +43,7 @@ import berthold.filedialogtool.FileDialog;
 
 /**
  * Reads a text file, checks for valid calendar entries and writes them to the devices calendar.
- *
+ * <p>
  * Signed: With "GoogleKeyStore"- key... (opted in to Signing by Google)....
  *
  * @author Berthold Fritz
@@ -143,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // if there are updates available.
         //
         // If permissions dialog is shown, wee need to notify the routine
-        // which cheks for updates, not to show the update info dilog...
-        Boolean permissionDialogIsShown=false;
+        // which checks for updates, not to show the update info dialog...
+        Boolean permissionDialogIsNotShown = true;
 
         // Was a calendar file opened previously?
         //
@@ -154,9 +154,20 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         if (!readAndParseJobSchedule(pathToCurrentCalendarFile)) {
 
+            //
+            // Check for permissions.
+            // The per,issions to be checked have to be defined inside the manifest file.
+            //
+            String[] perms = {"android.permission.WRITE_CALENDAR"};
+            int permsRequestCode = 200;
+            requestPermissions(perms, permsRequestCode); // Opens dialog asking for permissions.
+            /*
+            // OLD, not very clean solution. Kept it here to show how not to do it!
+            //
             // Permissions to access internal filesystem ('/SDCard')?
+            //
             if (permissionIsDenied("READ_EXTERNAL_STORAGE")) {
-                permissionDialogIsShown=true;
+                permissionDialogIsNotShown=false;
                 String dialogText = getResources().getString(R.string.ask_for_device_permissions_file_system);
                 String ok = getResources().getString(R.string.PERM_OK_Button);
                 String cancel = getResources().getString(R.string.PERM_CANCEL_BUTTON);
@@ -164,12 +175,13 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             } else {
                 openFileDialog();
             }
+            */
         }
 
         //
         // Check if there is a newer version of this app available at the play store
         //
-        if (showUpdateInfo() && !permissionDialogIsShown) {
+        if (showUpdateInfo() && permissionDialogIsNotShown) {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -193,9 +205,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             t.start();
         }
 
-
         //
-        // Filter settings
+        // Init filter settings
         //
         radioGroupViewFilters.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -242,51 +253,36 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //
         // Listen to spinner showing all vag numbers
         //
-        List<String> v=mainActivityViewModel.getAllVAGNumbers("");
-        final String [] courseList=new String [v.size()];
+        List<String> v = mainActivityViewModel.getAllVAGNumbers("");
+        final String[] courseList = new String[v.size()];
         v.toArray(courseList);
-        ArrayAdapter<String> adapterV = new ArrayAdapter<>(this, R.layout.spinner_layout, courseList);
+        ArrayAdapter<String> adapterV = new ArrayAdapter<String>(this, R.layout.spinner_layout, courseList);
         vagNumbersList.setAdapter(adapterV);
 
         vagNumbersList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String vagAndCourseN=vagNumbersList.getItemAtPosition(position).toString();
+                String vagAndCourseN = vagNumbersList.getItemAtPosition(position).toString();
 
-                String s[]=vagAndCourseN.split(",");
+                String s[] = vagAndCourseN.split(",");
                 String vag;
-                if (s.length==2)
-                    vag=s[1];
+                if (s.length == 2)
+                    vag = s[1];
                 else
-                    vag="*";
+                    vag = "*";
 
                 mainActivityViewModel.setCurrentVAGNumberDisplayed(vag);
                 readAndParseJobSchedule(pathToCurrentCalendarFile);
-                Log.v("SPINNER"," vag number selected"+vag);
+                Log.v("SPINNER", " vag number selected" + vag);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                Log.v("SPINNER"," No vag number selected for filtering");
+                Log.v("SPINNER", " No vag number selected for filtering");
             }
         });
     }
 
-    /**
-     * Checks if a permission is granted or not.
-     *
-     * @param permission
-     * @return true if the specified permission is granted.
-     */
-    private boolean permissionIsDenied(String permission) {
-        //@rem: Shows how to check permissions
-        if (ContextCompat.checkSelfPermission(MainActivity.this, permission)
-                == PackageManager.PERMISSION_DENIED)
-            return true;
-        else
-            return false;
-        //@@
-    }
 
     /**
      * Shows a confirm dialog.
@@ -319,6 +315,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //
         if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS) {
 
+            /*
+            // This is the old version of the permission checker
             if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
 
                 // @rem:Shows how to open the Android systems settings activity fro this app.
@@ -331,18 +329,36 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 String denied = getResources().getString(R.string.permission_denied);
                 Toast.makeText(MainActivity.this, denied, Toast.LENGTH_LONG).show();
             }
+            */
         }
 
         //
         // Update this app?
         //
-        if(reqCode==CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE){
+        if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE) {
             if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
                 Intent Getintent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.berthold.convertjobscheduletocalendar&hl=de"));
                 startActivity(Getintent);
             }
         }
     }
+
+    /**
+     * Checks if a permission is granted or not.
+     *
+     * @param permission
+     * @return true if the specified permission is granted.
+     */
+    private boolean permissionIsDenied(String permission) {
+        //@rem: Shows how to check permissions
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permission)
+                == PackageManager.PERMISSION_DENIED)
+            return true;
+        else
+            return false;
+        //@@
+    }
+
 
     /**
      * Some System callbacks...
@@ -376,22 +392,21 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             return false;
         } else {
 
-            String vagNumber= mainActivityViewModel.getCurrentVAGNumberDisplayed();
-            Log.v("VAGVAG",vagNumber);
+            String vagNumber = mainActivityViewModel.getCurrentVAGNumberDisplayed();
+            Log.v("VAGVAG", vagNumber);
 
             for (CalendarEntry calendarEntry : rawCalendar) {
 
                 Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
 
-                if (vagNumber.equals("*")){
+                if (vagNumber.equals("*")) {
                     if (showOnlyFutureEventsView.isChecked()) {
                         if (currentEventTimeInMillisec >= currentTimeInMillisec)
                             addEvent(calendarEntry);
                     } else
                         addEvent(calendarEntry);
 
-                } else if (calendarEntry.getVagNumber().equals(vagNumber))
-                {
+                } else if (calendarEntry.getVagNumber().equals(vagNumber)) {
                     if (showOnlyFutureEventsView.isChecked()) {
                         if (currentEventTimeInMillisec >= currentTimeInMillisec)
                             addEvent(calendarEntry);
@@ -401,6 +416,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             }
         }
         jobScheduleListAdapter.notifyDataSetChanged();
+
 
         String revisionDate = mainActivityViewModel.getMyCalendar().getCalendarRevisionDate();
         String revisionTime = mainActivityViewModel.getMyCalendar().getCalendarRevisionTime();
@@ -430,14 +446,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             if (!calendarEntry.isValidEntry)
                 mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
         }
-    }
-
-    /**
-     *
-     * @param courseNumber
-     */
-    private void addAllVagNumbersToSpinner(String courseNumber){
-
     }
 
     @Override
@@ -780,44 +788,45 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * a boolean set to true which tells us that the
      * info has been shown at least once.
      */
-    private void saveTimeUpdateInfoLastOpened(){
-        Long currentTime=System.currentTimeMillis();
+    private void saveTimeUpdateInfoLastOpened() {
+        Long currentTime = System.currentTimeMillis();
         sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong("lastUpdateInfo", currentTime);
-        editor.putBoolean("hasBeenShownAtLastOnce",true);
+        editor.putBoolean("hasBeenShownAtLastOnce", true);
         editor.commit();
     }
 
     /**
      * Checks if update info is allowed to be shown again.
+     *
      * @return true if allowed, false if not.
      */
-    private boolean showUpdateInfo (){
+    private boolean showUpdateInfo() {
         sharedPreferences = getPreferences(MODE_PRIVATE);
 
         // If the update info has not been shown at least once, then
         // show it now, for the first time and as a result, also save the
         // time last shown for the first time.
-        Boolean hasBeenShowedAtLeastOnce=sharedPreferences.getBoolean("hasBeenShownAtLastOnce",false);
+        Boolean hasBeenShowedAtLeastOnce = sharedPreferences.getBoolean("hasBeenShownAtLastOnce", false);
         if (!hasBeenShowedAtLeastOnce)
             return true;    // Don't show
 
         // Update info has been shown at least for one time. So check
         // when this was and if enough time has passed to allow it
         // to be shown again....
-        Long currentTime=System.currentTimeMillis();
+        Long currentTime = System.currentTimeMillis();
 
         // Time in Millisec. which has to be passed until update info is
         // allowed to be shown again since the  last time it
         // appeared on the screen;
-        int timeDiffUntilNextUpdateInfo=8*60*60*1000; // Show once every eight hours.....
+        int timeDiffUntilNextUpdateInfo = 8 * 60 * 60 * 1000; // Show once every eight hours.....
 
-        Long lastTimeOpened=sharedPreferences.getLong("lastUpdateInfo",currentTime);
+        Long lastTimeOpened = sharedPreferences.getLong("lastUpdateInfo", currentTime);
 
-        Log.v("TIMETIME"," Last:"+lastTimeOpened+"   current:"+currentTime+"  Diff:"+(currentTime-lastTimeOpened));
+        Log.v("TIMETIME", " Last:" + lastTimeOpened + "   current:" + currentTime + "  Diff:" + (currentTime - lastTimeOpened));
 
-        if ((currentTime-lastTimeOpened)>timeDiffUntilNextUpdateInfo)
+        if ((currentTime - lastTimeOpened) > timeDiffUntilNextUpdateInfo)
             return true;    // Show
         else
             return false;   // Don't show

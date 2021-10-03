@@ -66,6 +66,9 @@ public class MainActivityViewModel extends ViewModel {
         this.jobScheduleListData = jobScheduleListData;
     }
 
+    /**
+     * @return The curent job schedule list, filtered as specified in the current filter settings.
+     */
     public List<CalendarEntry> getJobScheduleListData() {
         return jobScheduleListData;
     }
@@ -88,10 +91,13 @@ public class MainActivityViewModel extends ViewModel {
         return latest;
     }
 
-    public List<String> getAllCourseNumbers(String vagNumber) {
-        return mycalendar.getListOfAllCourseNumbers(vagNumber);
-    }
-
+    /**
+     * Returns a list of all courses in this calendar and their associated
+     * VAG-numbers.
+     *
+     * @param courseNumber If a course number is passed, return only this course.
+     * @return List of course numbers and their associated VAG- numbers.
+     */
     public List<String> getAllVAGNumbers(String courseNumber) {
         return mycalendar.getCourseList();
     }
