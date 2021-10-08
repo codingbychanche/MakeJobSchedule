@@ -6,6 +6,12 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Declare all the intents that your app will query -->
+    <queries>
+        <!-- Specific apps you interact with, eg: -->
+        <package android:name="berthold.filedialogtool.FileDialog" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -13,14 +19,15 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name="com.berthold.convertjobscheduletocalendar.InfoActivity"></activity>
         <activity android:name="com.berthold.convertjobscheduletocalendar.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name="berthold.filedialogtool.FileDialog" />
     </application>
 </manifest>

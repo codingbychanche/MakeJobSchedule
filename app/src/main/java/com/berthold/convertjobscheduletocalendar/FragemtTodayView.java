@@ -52,7 +52,7 @@ public class FragemtTodayView extends Fragment {
         todaysDate.setTimeInMillis(currentTimeInMillisec);
 
         mainActivityViewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
-        mycalendar=new ArrayList<>();
+        mycalendar = new ArrayList<>();
         mycalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
     }
 
@@ -64,9 +64,9 @@ public class FragemtTodayView extends Fragment {
             return inflater.inflate(R.layout.fragment_today_view_today_is_weekend, container, false);
         else {
             // No Weekend, does an entry for today exist?
-            if(validEntryExists()) {
+            if (validEntryExists()) {
                 return inflater.inflate(R.layout.fragment_today_view, container, false);
-            }else
+            } else
                 // Job schedule is empty!
                 return inflater.inflate(R.layout.fragment_today_view_no_valid_entry, container, false);
         }
@@ -125,7 +125,7 @@ public class FragemtTodayView extends Fragment {
             // toDo implement dedicated method to form a date String inside the library module
             String day, month, year;
             day = todaysDate.get(Calendar.DAY_OF_MONTH) + ".";
-            month = todaysDate.get(Calendar.MONTH)+1 + ".";
+            month = todaysDate.get(Calendar.MONTH) + 1 + ".";
             year = todaysDate.get(Calendar.YEAR) + "";
 
             todaysDateView.setText(day + month + year);
@@ -137,16 +137,16 @@ public class FragemtTodayView extends Fragment {
      * job schedule.
      *
      * @return true if entry exists an is a valid entry (e.g. has at least a date and a course number), false if not...
-     *
+     * <p>
      * toDo implement dedicated method inside library module...
      */
     private boolean validEntryExists() {
         for (CalendarEntry e : mycalendar) {
             if (e.compareThisEntrysDateWith(todaysDate) == e.HAS_SAME_DATE) {
                 if (e.isValidEntry)
-                return true;
+                    return true;
             }
         }
-    return false;
+        return false;
     }
 }

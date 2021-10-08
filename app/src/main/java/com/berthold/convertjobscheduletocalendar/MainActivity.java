@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             // Check for permissions.
             // The per,issions to be checked have to be defined inside the manifest file.
             //
-            String[] perms = {"android.permission.WRITE_CALENDAR"};
+            String[] perms = {"android.permission.WRITE_CALENDAR","android.permission.READ_EXTERNAL_STORAGE"};
             int permsRequestCode = 200;
             requestPermissions(perms, permsRequestCode); // Opens dialog asking for permissions.
             /*
@@ -359,7 +359,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //@@
     }
 
-
     /**
      * Some System callbacks...
      */
@@ -417,7 +416,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         }
         jobScheduleListAdapter.notifyDataSetChanged();
 
-
         String revisionDate = mainActivityViewModel.getMyCalendar().getCalendarRevisionDate();
         String revisionTime = mainActivityViewModel.getMyCalendar().getCalendarRevisionTime();
         getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
@@ -445,6 +443,31 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         if (mainActivityViewModel.getShowInvalid()) {
             if (!calendarEntry.isValidEntry)
                 mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
+        }
+    }
+
+    /**
+     * Callback invoked when the permissions granted dialog was closed.
+     *
+     * @param permsRequestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode, String[] permissions, int[] grantResults) {
+
+        switch (permsRequestCode) {
+
+            case 200:
+
+                boolean calendarAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean fileSystemAccepted= grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                if (fileSystemAccepted)
+                    openFileDialog();
+
+                Log.v("PERMISSIONS_","C="+calendarAccepted+" + F="+fileSystemAccepted);
+                break;
         }
     }
 
@@ -833,7 +856,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * Save path to current calendar file t shared preferences.
+     * Save path to current calendar file shared preferences.
      */
     private void savePathToCurrentCalendarFileToSp(String pathToCurrentCalendarFile) {
         sharedPreferences = getPreferences(Context.MODE_PRIVATE);
