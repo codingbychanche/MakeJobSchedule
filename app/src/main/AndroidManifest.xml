@@ -3,7 +3,7 @@
     package="com.berthold.convertjobscheduletocalendar">
 
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- Declare all the intents that your app will query -->
@@ -28,6 +28,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="berthold.filedialogtool.FileDialog" />
+        <activity android:name="com.berthold.convertjobscheduletocalendar.FileDialog" />
     </application>
 </manifest>

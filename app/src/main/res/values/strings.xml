@@ -1,4 +1,9 @@
 <resources>
+
+    <!-- File chooser -->
+
+    <string name="activity_name">Dateiauswahl</string>
+
     <!-- Main -->
     <string name="app_name">Einsatzplan</string>
     <string name="description">Diese App konvertiert einen Einsatzplan in Kalendereinträge.</string>

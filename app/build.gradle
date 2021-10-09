@@ -8,8 +8,8 @@ android {
         applicationId "com.berthold.convertjobscheduletocalendar"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 183
-        versionName "1.83"
+        versionCode 184
+        versionName "1.84"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,7 +38,7 @@ dependencies {
     // jsoup HTML parser library @ https://jsoup.org/
     implementation 'org.jsoup:jsoup:1.13.1'
 
-    implementation 'com.github.codingbychanche:FileDialogTool:V1.1.0'
+    //implementation 'com.github.codingbychanche:FileDialogTool:V1.1.0'
 
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'

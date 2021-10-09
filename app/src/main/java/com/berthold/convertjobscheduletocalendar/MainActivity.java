@@ -39,7 +39,6 @@ import java.util.List;
 
 
 import CalendarMaker.*;
-import berthold.filedialogtool.FileDialog;
 
 /**
  * Reads a text file, checks for valid calendar entries and writes them to the devices calendar.
