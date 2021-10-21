@@ -1,5 +1,9 @@
 package com.berthold.convertjobscheduletocalendar;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
@@ -8,11 +12,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.CalendarContract;
@@ -32,10 +38,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 
 import CalendarMaker.*;
@@ -52,14 +62,17 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     // Shared prefs
     SharedPreferences sharedPreferences;
 
+    //--------- For API levels <30 --------------------------------------------------
     // File system
     public static File workingDir;
-    public String appDir = "/Meine_Einsatzpläne";       // App's working dir..
+    //public String appDir = "/Meine_Einsatzpläne";       // App's working dir..
 
     // File dialog tool
-    private String pathToCurrentCalendarFile = appDir;
     private static final int ID_FILE_DIALOG = 1;
     private static final boolean OVERRIDE_LAST_PATH_VISITED = false;
+    //--------- -----------------------------------------------------------------------
+
+    ActivityResultLauncher loadFileActivityResult;
 
     // Calendar list
     private RecyclerView jobScheduleListRecyclerView;
@@ -97,14 +110,22 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
 
+        /*--------------------- todo When target SDK is below 30 (Android 10 or less) ----------------------
         // File system
         //
         // @rem:Filesystem, creates public folder in the devices externalStorage dir...@@
         //
         // This seems to be the best practice. It creates a public folder.
         // This folder will not be deleted when the app is de- installed
-        workingDir = Environment.getExternalStoragePublicDirectory(appDir);
+        /*
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+            workingDir = Environment.getExternalStoragePublicDirectory(appDir);
+                   else
+            workingDir = getExternalFilesDir(appDir);
+
+        Log.v("WORKINGDIR",workingDir.getPath());
         workingDir.mkdirs(); // Create dir, if it does not already exist
+        -----------------------------------------------------------------------------------------------------*/
 
         // UI
         radioGroupViewFilters = findViewById(R.id.radioGroupViewFilter);
@@ -149,15 +170,14 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //
         // If so, proceed, if not, open the file dialog tool for the user allowing
         // him to pick a suitable file...
-        pathToCurrentCalendarFile = restorePathOfCurrentCalendarFileFromSp();
-
-        if (!readAndParseJobSchedule(pathToCurrentCalendarFile)) {
+        if (!readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()))) {
 
             //
             // Check for permissions.
-            // The per,issions to be checked have to be defined inside the manifest file.
+            // The perissions to be checked have to be defined inside the manifest file.
             //
-            String[] perms = {"android.permission.WRITE_CALENDAR","android.permission.READ_EXTERNAL_STORAGE"};
+
+            String[] perms = {"android.permission.WRITE_CALENDAR", "android.permission.READ_EXTERNAL_STORAGE"};
             int permsRequestCode = 200;
             requestPermissions(perms, permsRequestCode); // Opens dialog asking for permissions.
             /*
@@ -165,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             //
             // Permissions to access internal filesystem ('/SDCard')?
             //
-            if (permissionIsDenied("READ_EXTERNAL_STORAGE")) {
-                permissionDialogIsNotShown=false;
+            if (permissionIsDenied("ACTION_READ_INTERNAL_STORAGE")) {
+                permissionDialogIsNotShown = false;
                 String dialogText = getResources().getString(R.string.ask_for_device_permissions_file_system);
                 String ok = getResources().getString(R.string.PERM_OK_Button);
                 String cancel = getResources().getString(R.string.PERM_CANCEL_BUTTON);
@@ -175,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 openFileDialog();
             }
             */
+
         }
 
         //
@@ -226,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                         mainActivityViewModel.setShowValid(true);
                         break;
                 }
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()));
                 jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
@@ -238,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mainActivityViewModel.setShowOnlyFutureEvents(isChecked);
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()));
                 jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
@@ -247,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
 
         // refresh
-        readAndParseJobSchedule(pathToCurrentCalendarFile);
+        readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()));
 
         //
         // Listen to spinner showing all vag numbers
@@ -271,7 +292,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                     vag = "*";
 
                 mainActivityViewModel.setCurrentVAGNumberDisplayed(vag);
-                readAndParseJobSchedule(pathToCurrentCalendarFile);
+                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()));
+                jobScheduleListAdapter.notifyDataSetChanged();
                 Log.v("SPINNER", " vag number selected" + vag);
             }
 
@@ -280,8 +302,31 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 Log.v("SPINNER", " No vag number selected for filtering");
             }
         });
-    }
 
+        //
+        // Callback for file Picker if using Android 11 or higher....
+        //
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            loadFileActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Log.v("RETURN_DATA_", result.getData().toString());
+
+                        // The result contains an uri which can be used to perform operations on the
+                        // document the user selected.
+                        //
+                        // In this example we read the picked document and show it's contents
+                        // inside the associated textView.
+                        Uri uri;
+                        uri = result.getData().getData();
+                        readAndParseJobSchedule(getCalendarFilesInputStream(uri));
+                        savePathToCurrentCalendarFileToSp(uri);
+                    }
+                }
+            });
+        }
+    }
 
     /**
      * Shows a confirm dialog.
@@ -314,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //
         if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS) {
 
-            /*
+
             // This is the old version of the permission checker
             if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
 
@@ -328,7 +373,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 String denied = getResources().getString(R.string.permission_denied);
                 Toast.makeText(MainActivity.this, denied, Toast.LENGTH_LONG).show();
             }
-            */
         }
 
         //
@@ -372,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * @param pathToCurrentCalendarFile
      * @return True is the file could be read, false if there was an i/o error...
      */
-    private boolean readAndParseJobSchedule(String pathToCurrentCalendarFile) {
+    private boolean readAndParseJobSchedule(InputStream pathToCurrentCalendarFile) {
 
         mainActivityViewModel.getJobScheduleListData().clear();
         jobScheduleListAdapter.notifyDataSetChanged();
@@ -387,11 +431,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         long currentTimeInMillisec = System.currentTimeMillis();
 
         if (mainActivityViewModel.getMyCalendar().hasError()) {
+            String error = mainActivityViewModel.getMyCalendar().getErorrDescription();
+            Log.v("ERROR__", error);
             return false;
         } else {
 
             String vagNumber = mainActivityViewModel.getCurrentVAGNumberDisplayed();
-            Log.v("VAGVAG", vagNumber);
 
             for (CalendarEntry calendarEntry : rawCalendar) {
 
@@ -453,19 +498,21 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * @param grantResults
      */
     @Override
+
     public void onRequestPermissionsResult(int permsRequestCode, String[] permissions, int[] grantResults) {
 
+        super.onRequestPermissionsResult(permsRequestCode, permissions, grantResults);
         switch (permsRequestCode) {
 
             case 200:
 
                 boolean calendarAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                boolean fileSystemAccepted= grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                boolean fileSystemAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
                 if (fileSystemAccepted)
                     openFileDialog();
 
-                Log.v("PERMISSIONS_","C="+calendarAccepted+" + F="+fileSystemAccepted);
+                Log.v("PERMISSIONS_", "C=" + calendarAccepted + " + F=" + fileSystemAccepted);
                 break;
         }
     }
@@ -478,12 +525,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     @Override
     public void onDestroy() {
         super.onDestroy();
-        savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
+        //savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
     }
 
     @Override
     public void onBackPressed() {
-        savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
+        //savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
         finish();
     }
 
@@ -503,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.load) {
-            savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
+            //savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
             /*
             if (permissionIsDenied("READ_EXTERNAL_STORAGE")) {
                 // Todo Even when permissions are allowed, this block is execuded, why. Seems this only works in "on Create"
@@ -514,36 +561,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             return true;
         }
         if (id == R.id.info) {
-            savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
+            //savePathToCurrentCalendarFileToSp(pathToCurrentCalendarFile);
             Intent i = new Intent(MainActivity.this, InfoActivity.class);
             startActivity(i);
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * File Dialog Tool callback.
-     *
-     * @param reqCode Code which idendifies the fileDialogTool as the returning activity
-     * @param resCode OK, error, etc...
-     * @param data    Selected path.
-     */
-    @Override
-    protected void onActivityResult(int reqCode, int resCode, Intent data) {
-        super.onActivityResult(reqCode, resCode, data);
-        if (resCode == RESULT_OK && reqCode == ID_FILE_DIALOG) {
-            if (data.hasExtra("path")) {
-
-                String returnStatus = data.getExtras().getString(FileDialog.RETURN_STATUS);
-                String pathSelected = data.getExtras().getString("path");
-
-                if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED)) {
-                    pathToCurrentCalendarFile = pathSelected;
-                    readAndParseJobSchedule(pathToCurrentCalendarFile);
-                }
-            }
-        }
     }
 
     /**
@@ -747,8 +770,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     public void setFilterVagNumber(String vagNumber) {
         List<CalendarEntry> result = mainActivityViewModel.getMyCalendar().getCalenderEntrysMatchingVAG(vagNumber);
-
-
     }
 
     /**
@@ -799,11 +820,60 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * Select a job schedule file via the file dialog tool.
      */
     private void openFileDialog() {
-        Intent i = new Intent(MainActivity.this, FileDialog.class);
-        i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.GET_FILE_NAME_AND_PATH);
-        i.putExtra(FileDialog.OVERRIDE_LAST_PATH_VISITED, OVERRIDE_LAST_PATH_VISITED);
-        startActivityForResult(i, ID_FILE_DIALOG);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            //
+            // For Android vesions < 11
+            //
+            Intent i = new Intent(MainActivity.this, FileDialog.class);
+            i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.GET_FILE_NAME_AND_PATH);
+            i.putExtra(FileDialog.OVERRIDE_LAST_PATH_VISITED, OVERRIDE_LAST_PATH_VISITED);
+            startActivityForResult(i, ID_FILE_DIALOG);
+        } else {
+            //
+            // For Android versions =>11
+            //
+            // This will open the devices file picker and lets
+            // one pick a file....
+            //
+            Intent pickFileIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            pickFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            pickFileIntent.setType("text/*");
+            loadFileActivityResult.launch(pickFileIntent);
+        }
     }
+
+    /**
+     * File Dialog Tool callback.
+     * For SDK < Android 11 (HONEYCOMP)
+     *
+     * @param reqCode Code which idendifies the fileDialogTool as the returning activity
+     * @param resCode OK, error, etc...
+     * @param data    Selected path.
+     */
+    /*
+    @Override
+    protected void onActivityResult(int reqCode, int resCode, Intent data) {
+        super.onActivityResult(reqCode, resCode, data);
+
+        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.HONEYCOMB) {
+            if (resCode == RESULT_OK && reqCode == ID_FILE_DIALOG) {
+                if (data.hasExtra("path")) {
+
+                    String returnStatus = data.getExtras().getString(FileDialog.RETURN_STATUS);
+                    String pathSelected = data.getExtras().getString("path");
+
+                    Log.v("PATH_", pathSelected);
+
+                    if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED)) {
+                        pathToCurrentCalendarFile = pathSelected;
+                        //readAndParseJobSchedule(pathToCurrentCalendarFile);
+                    }
+                }
+            }
+        }
+    }
+    */
 
     /**
      * Saves timestamp when update info was shown and
@@ -855,20 +925,37 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
+     * Retrieves the input stream associatedwith the calendar file.
+     *
+     * @param uri
+     * @return Input stream for the associated calendar file.
+     */
+    private InputStream getCalendarFilesInputStream(Uri uri) {
+        InputStream inputStream;
+        try {
+            inputStream = getContentResolver().openInputStream(uri);
+        } catch (Exception e) {
+            inputStream = null;
+        }
+        return inputStream;
+    }
+
+    /**
      * Save path to current calendar file shared preferences.
      */
-    private void savePathToCurrentCalendarFileToSp(String pathToCurrentCalendarFile) {
+    private void savePathToCurrentCalendarFileToSp(Uri pathToCurrentCalendarFile) {
         sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("pathToCurrentCalendarFile", pathToCurrentCalendarFile);
+        editor.putString("pathToCurrentCalendarFile", pathToCurrentCalendarFile.toString());
         editor.commit();
     }
 
     /**
      * Restore path to current calendar file from shared pref's..
      */
-    private String restorePathOfCurrentCalendarFileFromSp() {
+    private Uri restorePathOfCurrentCalendarFileFromSp() {
         sharedPreferences = getPreferences(MODE_PRIVATE);
-        return pathToCurrentCalendarFile = sharedPreferences.getString("pathToCurrentCalendarFile", "-");
+        String path = sharedPreferences.getString("pathToCurrentCalendarFile", "-");
+        return Uri.parse(path);
     }
 }

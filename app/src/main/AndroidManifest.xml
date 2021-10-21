@@ -4,16 +4,14 @@
 
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!-- Declare all the intents that your app will query -->
-    <queries>
-        <!-- Specific apps you interact with, eg: -->
-        <package android:name="berthold.filedialogtool.FileDialog" />
-    </queries>
 
     <application
         android:allowBackup="true"
+
+        android:requestLegacyExternalStorage="true"
+
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -28,6 +26,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.berthold.convertjobscheduletocalendar.FileDialog" />
+        <activity android:name="com.berthold.convertjobscheduletocalendar.FileDialog" >
+        android:name=".FileChooser"
+        android:label="@string/titel_activity_file_cooser"
+        android:theme="@style/AppTheme.NoActionBar" />
+        </activity>
+
     </application>
 </manifest>

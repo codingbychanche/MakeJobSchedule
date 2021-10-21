@@ -1,11 +1,13 @@
 package com.berthold.convertjobscheduletocalendar;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ import CalendarMaker.MakeCalendar;
 public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, String> {
 
     // File system
-    private String pathToCurrentCalendarFile;
+    private InputStream pathToCurrentCalendarFile;
 
     // Calendar list
     private RecyclerView.Adapter jobScheduleListAdapter;
@@ -44,7 +46,7 @@ public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, Stri
      * @param showOnlyFutureEventsView
      * @throws InterruptedException
      */
-    JobScheduleListFiller(String pathToCurrentCalendarFile,
+    JobScheduleListFiller(InputStream pathToCurrentCalendarFile,
                           List <CalendarEntry>jobScheduleListData,
                           RecyclerView.Adapter jobScheduleListAdapter,
                           RadioButton selectAllView,
@@ -79,6 +81,7 @@ public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, Stri
         jobScheduleListData.clear();
 
         List<CalendarEntry> calendar = new ArrayList();
+
         MakeCalendar myCalendar = new MakeCalendar(pathToCurrentCalendarFile);
 
         calendar = myCalendar.getRawCalendar();
