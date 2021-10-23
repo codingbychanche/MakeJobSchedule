@@ -38,7 +38,8 @@ dependencies {
     // jsoup HTML parser library @ https://jsoup.org/
     implementation 'org.jsoup:jsoup:1.13.1'
 
-    //implementation 'com.github.codingbychanche:FileDialogTool:V1.1.0'
+    // For API levels bellow 30 (Android 11)
+    implementation 'com.github.codingbychanche:FileDialogTool:V1.1.0'
 
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'

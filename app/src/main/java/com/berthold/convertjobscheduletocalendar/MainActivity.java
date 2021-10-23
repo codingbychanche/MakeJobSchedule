@@ -49,6 +49,7 @@ import java.util.Objects;
 
 
 import CalendarMaker.*;
+import berthold.filedialogtool.FileDialog;
 
 /**
  * Reads a text file, checks for valid calendar entries and writes them to the devices calendar.
@@ -62,9 +63,9 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     // Shared prefs
     SharedPreferences sharedPreferences;
 
-    //--------- For API levels <30 --------------------------------------------------
+    //--------- ToDo For API levels <30 --------------------------------------------------
     // File system
-    public static File workingDir;
+    //public static File workingDir;
     //public String appDir = "/Meine_Einsatzpläne";       // App's working dir..
 
     // File dialog tool
@@ -113,14 +114,20 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         /*--------------------- todo When target SDK is below 30 (Android 10 or less) ----------------------
         // File system
         //
-        // @rem:Filesystem, creates public folder in the devices externalStorage dir...@@
-        //
-        // This seems to be the best practice. It creates a public folder.
-        // This folder will not be deleted when the app is de- installed
-        /*
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-            workingDir = Environment.getExternalStoragePublicDirectory(appDir);
-                   else
+            // @rem:Filesystem, creates public folder in the devices externalStorage dir...@@
+            //
+            // This seems to be the best practice. It creates a public folder.
+            // This folder will not be deleted when the app is de- installed
+            workingDir = Environment.getExternalStoragePublicDirectory(appDir); // Has access restrictions..
+
+            else
+
+            // For API levels > 29 this gets the apps "private" dir.
+            // It is not able to access root or the rest of the file tree.
+            // Other apps can not access this dir.
+            // When the app is de installed, the contents of this dir are also deleted.
+
             workingDir = getExternalFilesDir(appDir);
 
         Log.v("WORKINGDIR",workingDir.getPath());
@@ -164,22 +171,23 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //
         // If permissions dialog is shown, wee need to notify the routine
         // which checks for updates, not to show the update info dialog...
-        Boolean permissionDialogIsNotShown = true;
+        //Boolean permissionDialogIsNotShown = true;
 
         // Was a calendar file opened previously?
         //
         // If so, proceed, if not, open the file dialog tool for the user allowing
-        // him to pick a suitable file...
+        // him to pick a suitable file. If permissions are ot granted yet, ask the user
+        // to do so.
         if (!readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()))) {
 
             //
             // Check for permissions.
-            // The perissions to be checked have to be defined inside the manifest file.
+            // The permissions to be checked have to be defined inside the manifest file.
             //
-
             String[] perms = {"android.permission.WRITE_CALENDAR", "android.permission.READ_EXTERNAL_STORAGE"};
             int permsRequestCode = 200;
             requestPermissions(perms, permsRequestCode); // Opens dialog asking for permissions.
+
             /*
             // OLD, not very clean solution. Kept it here to show how not to do it!
             //
@@ -199,9 +207,10 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         }
 
         //
-        // Check if there is a newer version of this app available at the play store
+        // Check if there is a newer version of this app available at the play store.
         //
-        if (showUpdateInfo() && permissionDialogIsNotShown) {
+        //if (showUpdateInfo() && permissionDialogIsNotShown) {
+        if (showUpdateInfo()){
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -316,8 +325,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                         // The result contains an uri which can be used to perform operations on the
                         // document the user selected.
                         //
-                        // In this example we read the picked document and show it's contents
-                        // inside the associated textView.
                         Uri uri;
                         uri = result.getData().getData();
                         readAndParseJobSchedule(getCalendarFilesInputStream(uri));
@@ -380,8 +387,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //
         if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE) {
             if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
-                Intent Getintent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.berthold.convertjobscheduletocalendar&hl=de"));
-                startActivity(Getintent);
+                Intent openPlayStoreForUpdate = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.berthold.convertjobscheduletocalendar&hl=de"));
+                startActivity(openPlayStoreForUpdate);
             }
         }
     }
