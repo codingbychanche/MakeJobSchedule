@@ -72,9 +72,6 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         });
 
         TextView dayOfWeekView = holder.mView.findViewById(R.id.day_of_week);
-        int dayNameResourche = dayOfWeek[(jobScheduleListData.get(position).getDayOfWeekForThisDate()) - 1];
-        dayOfWeekView.setText(context.getString(dayNameResourche));
-
         TextView dateView = holder.mView.findViewById(R.id.date);
         TextView startTimeView = holder.mView.findViewById(R.id.start_time);
         TextView endTimeView = holder.mView.findViewById(R.id.end_time);
@@ -83,7 +80,15 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         TextView loctionView = holder.mView.findViewById(R.id.location);
         TextView typeView = holder.mView.findViewById(R.id.type);
         TextView holidayView = holder.mView.findViewById(R.id.holiday_remark);
-        //TextView originalEntryView=holder.mView.findViewById(R.id.original_entry);
+
+        //
+        // Populate views
+        //
+        int dayNameResource = dayOfWeek[(jobScheduleListData.get(position).getDayOfWeekForThisDate()) - 1];
+        if (jobScheduleListData.get(position).isChildOfAnotherEntry)
+            dayOfWeekView.setText(" ");
+        else
+            dayOfWeekView.setText(context.getString(dayNameResource));
 
         dateView.setText(jobScheduleListData.get(position).getDate());
         startTimeView.setText(jobScheduleListData.get(position).getStartTime());
@@ -99,7 +104,6 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
 
         // Set background color and options according to the status of the entry.
         final View backgroundView = holder.mView.findViewById(R.id.calendar_entry_view);
-
 
         if (jobScheduleListData.get(position).isValidEntry) {
 

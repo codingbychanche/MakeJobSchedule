@@ -63,16 +63,20 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     // Shared prefs
     SharedPreferences sharedPreferences;
 
-    //--------- ToDo For API levels <30 --------------------------------------------------
+
+
+    //--------- For API levels <30 --------------------------------------------------
     // File system
     //public static File workingDir;
     //public String appDir = "/Meine_Einsatzpläne";       // App's working dir..
-
-    // File dialog tool
     private static final int ID_FILE_DIALOG = 1;
     private static final boolean OVERRIDE_LAST_PATH_VISITED = false;
     //--------- -----------------------------------------------------------------------
 
+    // Permission request callback
+    private static final int PERMISSION_REQUEST=200;
+
+    // Activitys
     ActivityResultLauncher loadFileActivityResult;
 
     // Calendar list
@@ -111,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
 
-        /*--------------------- todo When target SDK is below 30 (Android 10 or less) ----------------------
+        /*--------------------- When target SDK is below 30 (Android 10 or less) ----------------------
         // File system
         //
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
@@ -173,6 +177,28 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // which checks for updates, not to show the update info dialog...
         //Boolean permissionDialogIsNotShown = true;
 
+        //
+        // Callback for file Picker if using Android 11 or higher....
+        //
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            loadFileActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Log.v("RETURN_DATA_", result.getData().toString());
+
+                        // The result contains an uri which can be used to perform operations on the
+                        // document the user selected.
+                        //
+                        Uri uri;
+                        uri = result.getData().getData();
+                        readAndParseJobSchedule(getCalendarFilesInputStream(uri));
+                        savePathToCurrentCalendarFileToSp(uri);
+                    }
+                }
+            });
+        }
+
         // Was a calendar file opened previously?
         //
         // If so, proceed, if not, open the file dialog tool for the user allowing
@@ -185,8 +211,13 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             // The permissions to be checked have to be defined inside the manifest file.
             //
             String[] perms = {"android.permission.WRITE_CALENDAR", "android.permission.READ_EXTERNAL_STORAGE"};
-            int permsRequestCode = 200;
-            requestPermissions(perms, permsRequestCode); // Opens dialog asking for permissions.
+            int permsRequestCode =PERMISSION_REQUEST;
+
+            // Opens a system dialog requesting permissions, if none of the
+            // permissions asked for were granted already....
+            requestPermissions(perms, permsRequestCode);
+
+            openFileDialog();
 
             /*
             // OLD, not very clean solution. Kept it here to show how not to do it!
@@ -203,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 openFileDialog();
             }
             */
-
         }
 
         //
@@ -311,28 +341,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 Log.v("SPINNER", " No vag number selected for filtering");
             }
         });
-
-        //
-        // Callback for file Picker if using Android 11 or higher....
-        //
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            loadFileActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Log.v("RETURN_DATA_", result.getData().toString());
-
-                        // The result contains an uri which can be used to perform operations on the
-                        // document the user selected.
-                        //
-                        Uri uri;
-                        uri = result.getData().getData();
-                        readAndParseJobSchedule(getCalendarFilesInputStream(uri));
-                        savePathToCurrentCalendarFileToSp(uri);
-                    }
-                }
-            });
-        }
     }
 
     /**
@@ -511,15 +519,17 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         super.onRequestPermissionsResult(permsRequestCode, permissions, grantResults);
         switch (permsRequestCode) {
 
-            case 200:
+            case PERMISSION_REQUEST:
 
                 boolean calendarAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 boolean fileSystemAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
-                if (fileSystemAccepted)
-                    openFileDialog();
+                //
+                // Insert actions to be performed, right after the permission was granted....
+                if (calendarAccepted)
 
-                Log.v("PERMISSIONS_", "C=" + calendarAccepted + " + F=" + fileSystemAccepted);
+                if (fileSystemAccepted)
+
                 break;
         }
     }
@@ -961,7 +971,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * Restore path to current calendar file from shared pref's..
      */
     private Uri restorePathOfCurrentCalendarFileFromSp() {
-        sharedPreferences = getPreferences(MODE_PRIVATE);
+        sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         String path = sharedPreferences.getString("pathToCurrentCalendarFile", "-");
         return Uri.parse(path);
     }
