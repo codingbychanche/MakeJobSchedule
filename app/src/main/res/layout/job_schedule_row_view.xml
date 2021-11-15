@@ -34,11 +34,11 @@
                 android:id="@+id/day_of_week"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
                 android:hint="DAY"
                 android:textSize="25dp"
-                app:layout_constraintBottom_toBottomOf="@+id/type"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"></TextView>
+                app:layout_constraintTop_toBottomOf="@+id/date"></TextView>
 
 
             <TextView
@@ -46,20 +46,20 @@
                 style="@style/TableRowsTitel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:hint="date"
-                app:layout_constraintStart_toEndOf="@+id/day_of_week"
-                app:layout_constraintTop_toTopOf="parent"></TextView>
+                app:layout_constraintEnd_toEndOf="@+id/day_of_week"
+                app:layout_constraintStart_toStartOf="@+id/day_of_week"
+                app:layout_constraintTop_toTopOf="@+id/start_time"></TextView>
 
             <TextView
                 android:id="@+id/start_time"
                 style="@style/TableRowsTitel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:hint="start"
-                app:layout_constraintStart_toEndOf="@+id/date"
-                app:layout_constraintTop_toTopOf="@+id/date"></TextView>
+                app:layout_constraintStart_toStartOf="@+id/location"
+                app:layout_constraintTop_toTopOf="parent"></TextView>
 
             <TextView
                 android:id="@+id/textView5"
@@ -96,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:hint="vag_number"
-                app:layout_constraintStart_toStartOf="@+id/location"
+                app:layout_constraintEnd_toStartOf="@+id/course_number"
                 app:layout_constraintTop_toBottomOf="@+id/location"></TextView>
 
             <TextView
@@ -104,9 +104,8 @@
                 style="@style/TableRowsTitel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
                 android:hint="course_number"
-                app:layout_constraintStart_toEndOf="@+id/vag_number"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/vag_number"></TextView>
 
             <TextView
@@ -124,10 +123,9 @@
                 style="@style/TableRowsTitel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
                 android:hint="locction"
-                app:layout_constraintStart_toStartOf="@+id/date"
-                app:layout_constraintTop_toBottomOf="@+id/date"></TextView>
+                app:layout_constraintStart_toStartOf="@+id/vag_number"
+                app:layout_constraintTop_toBottomOf="@+id/start_time"></TextView>
 
             <TextView
                 android:id="@+id/holiday_remark"

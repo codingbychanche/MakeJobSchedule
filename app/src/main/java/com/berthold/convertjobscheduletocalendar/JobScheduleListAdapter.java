@@ -85,12 +85,15 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         // Populate views
         //
         int dayNameResource = dayOfWeek[(jobScheduleListData.get(position).getDayOfWeekForThisDate()) - 1];
-        if (jobScheduleListData.get(position).isChildOfAnotherEntry)
+        if (jobScheduleListData.get(position).isChildOfAnotherEntry) {
             dayOfWeekView.setText(" ");
-        else
+            dateView.setText(" ");
+        }  else {
             dayOfWeekView.setText(context.getString(dayNameResource));
+            dateView.setText(jobScheduleListData.get(position).getDate());
+        }
 
-        dateView.setText(jobScheduleListData.get(position).getDate());
+
         startTimeView.setText(jobScheduleListData.get(position).getStartTime());
         endTimeView.setText(jobScheduleListData.get(position).getEndTime());
         vagNumberView.setText(jobScheduleListData.get(position).getVagNumber());

@@ -63,8 +63,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     // Shared prefs
     SharedPreferences sharedPreferences;
 
-
-
     //--------- For API levels <30 --------------------------------------------------
     // File system
     //public static File workingDir;
