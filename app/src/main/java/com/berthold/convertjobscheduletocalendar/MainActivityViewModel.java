@@ -25,6 +25,7 @@ public class MainActivityViewModel extends ViewModel {
     private boolean showValid = false;
     private boolean showInvalid = false;
     private String currentCourseNumberDisplayed, currentVAGNumberDisplayed;
+    private String currentSearchQuery="";
 
     /**
      * Initializes the current job schedule.
@@ -152,5 +153,13 @@ public class MainActivityViewModel extends ViewModel {
             return "*";
         else
             return currentVAGNumberDisplayed;
+    }
+
+    public String getCurrentSearchQuery() {
+        return currentSearchQuery;
+    }
+
+    public void setCurrentSearchQuery(String currentSearchQuery) {
+        this.currentSearchQuery = currentSearchQuery;
     }
 }

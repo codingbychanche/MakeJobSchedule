@@ -58,14 +58,6 @@
             app:layout_constraintStart_toStartOf="@+id/radioGroupViewFilter"
             app:layout_constraintTop_toBottomOf="@+id/radioGroupViewFilter"></CheckBox>
 
-        <SearchView
-            android:id="@+id/searchField"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="@string/search_hint"
-            app:layout_constraintStart_toStartOf="@+id/show_only_future_events"
-            app:layout_constraintTop_toBottomOf="@+id/show_only_future_events"></SearchView>
-
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/horiz_line"

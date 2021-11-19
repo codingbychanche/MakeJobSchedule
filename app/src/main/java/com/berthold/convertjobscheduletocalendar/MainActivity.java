@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,34 +19,24 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SearchView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
-
 
 import CalendarMaker.*;
 import berthold.filedialogtool.FileDialog;
@@ -99,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     TextView loctionView;
     TextView typeView;
     TextView holidayView;
-    Spinner vagNumbersList;
     SearchView searchView;
 
     // Misc
@@ -153,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         loctionView = findViewById(R.id.location);
         typeView = findViewById(R.id.type);
         holidayView = findViewById(R.id.holiday_remark);
-        searchView = findViewById(R.id.searchField);
 
         // ViewModel
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
@@ -192,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                         //
                         Uri uri;
                         uri = result.getData().getData();
-                        readAndParseJobSchedule(getCalendarFilesInputStream(uri),searchView.getQuery().toString());
+                        readAndParseJobSchedule(getCalendarFilesInputStream(uri), mainActivityViewModel.getCurrentSearchQuery());
                         savePathToCurrentCalendarFileToSp(uri);
                     }
                 }
@@ -204,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // If so, proceed, if not, open the file dialog tool for the user allowing
         // him to pick a suitable file. If permissions are ot granted yet, ask the user
         // to do so.
-        if (!readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()),searchView.getQuery().toString())) {
+        if (!readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery())) {
 
             //
             // Check for permissions.
@@ -286,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                         mainActivityViewModel.setShowValid(true);
                         break;
                 }
-                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()),searchView.getQuery().toString());
+                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
                 jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
@@ -298,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mainActivityViewModel.setShowOnlyFutureEvents(isChecked);
-                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()),searchView.getQuery().toString());
+                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
                 jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
@@ -307,26 +294,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
 
         // refresh
-        readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()),searchView.getQuery().toString());
+        readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
 
-        //
-        // The search view...
-        //
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            //
-            // This is invoked whenever the "search" button on the keyboard was pressed.
-            //
-            @Override
-            public boolean onQueryTextChange(String sq) {
-                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), sq);
-                return false;
-            }
-        });
     }
 
     /**
@@ -477,7 +446,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     private void addEvent(CalendarEntry calendarEntry, String search) {
 
-
         if (mainActivityViewModel.getShowAllEvents()) {
             publishEvent(calendarEntry, search);
         }
@@ -497,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     /**
      * Takes the already filtered entry and checks if the users search criteria
      * apply....
+     *
      * @param calendarEntry
      * @param search
      */
@@ -508,23 +477,23 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             // from here we check if the query given matches any of the fields of the calendar
             // and if so, all matching entrys are added..
             //
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.locationPattern,search)) {
+            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.locationPattern, search)) {
                 if (calendarEntry.getLocation().equals(search))
                     mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
             }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.vagNumberPattern,search)) {
+            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.vagNumberPattern, search)) {
                 if (calendarEntry.getVagNumber().equals(search))
                     mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
             }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.courseNumberPattern,search)) {
+            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.courseNumberPattern, search)) {
                 if (calendarEntry.getCourseNumber().equals(search))
                     mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
             }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.typePattern,search)) {
+            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.typePattern, search)) {
                 if (calendarEntry.getType().equals(search))
                     mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
             }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.datePattern,search)) {
+            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.datePattern, search)) {
                 if (calendarEntry.getDate().equals(search))
                     mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
             }
@@ -582,6 +551,43 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
+
+        searchView=(SearchView) menu.findItem(R.id.search_field).getActionView();
+
+        // @rem:Shows how to create a search view and how to use it
+        // The search view...
+        //
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), query);
+                mainActivityViewModel.setCurrentSearchQuery(query);
+                return false;
+            }
+
+            //
+            // This is invoked whenever the "search" button on the keyboard was pressed.
+            //
+            @Override
+            public boolean onQueryTextChange(String sq) {
+
+                return false;
+            }
+        });
+        //@@
+
+        //
+        // When the search view's close button was pressed....
+        //
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                searchView.setQuery("", true);
+                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), "");
+                mainActivityViewModel.setCurrentSearchQuery("");
+                return false;
+            }
+        });
         return true;
     }
 
