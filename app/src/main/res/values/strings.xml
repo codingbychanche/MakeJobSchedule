@@ -14,6 +14,7 @@
     <string name="lines_not_valid">Nicht gültige Zeilen</string>
     <string name="swipe">Wischen zum Ein-/ Ausblenden</string>
     <string name="todays_event">Heute:</string>
+    <string name="search_hint">Suche.....</string>
 
     <!-- Calendar row -->
     <string name="add_to_calendar_text">Kalender Eintrag</string>

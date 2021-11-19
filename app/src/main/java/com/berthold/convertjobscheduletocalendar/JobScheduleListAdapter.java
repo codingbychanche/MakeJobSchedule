@@ -93,7 +93,6 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
             dateView.setText(jobScheduleListData.get(position).getDate());
         }
 
-
         startTimeView.setText(jobScheduleListData.get(position).getStartTime());
         endTimeView.setText(jobScheduleListData.get(position).getEndTime());
         vagNumberView.setText(jobScheduleListData.get(position).getVagNumber());

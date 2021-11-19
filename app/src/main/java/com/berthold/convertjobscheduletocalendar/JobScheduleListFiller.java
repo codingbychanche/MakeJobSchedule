@@ -32,6 +32,7 @@ public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, Stri
     RadioButton selectValidView;
     RadioButton selectInvalidView;
     CheckBox showOnlyFutureEventsView;
+    String search;
 
 
     /**
@@ -52,7 +53,7 @@ public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, Stri
                           RadioButton selectAllView,
                           RadioButton selectInvalidView,
                           RadioButton selectValidView,
-                          CheckBox showOnlyFutureEventsView) {
+                          CheckBox showOnlyFutureEventsView,String search) {
 
         this.pathToCurrentCalendarFile=pathToCurrentCalendarFile;
         this.jobScheduleListData=jobScheduleListData;
@@ -61,6 +62,7 @@ public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, Stri
         this.selectInvalidView=selectInvalidView;
         this.selectValidView=selectValidView;
         this.showOnlyFutureEventsView=showOnlyFutureEventsView;
+        this.search=search;
     }
 
     /**
@@ -117,7 +119,7 @@ public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, Stri
 
     /**
      * Add a calendar entry to the calendar according
-     * to view options selected by the user
+     * to view options selected and any search criteria given by the user.
      *
      * @global jobScheduleListData  Holding calendar entries currently visible to the user.
      * @param calendarEntry
@@ -125,17 +127,30 @@ public class JobScheduleListFiller extends AsyncTask<String, CalendarEntry, Stri
     private void addEvent(CalendarEntry calendarEntry) {
 
         if (selectAllView.isChecked()) {
-            publishProgress(calendarEntry);
+           checkforSearchCriteriaAndPublish(calendarEntry);
         }
 
         if (selectValidView.isChecked()) {
             if (calendarEntry.isValidEntry)
-                publishProgress(calendarEntry);
+                checkforSearchCriteriaAndPublish(calendarEntry);
         }
 
         if (selectInvalidView.isChecked()) {
             if (!calendarEntry.isValidEntry)
-                publishProgress(calendarEntry);
+                checkforSearchCriteriaAndPublish(calendarEntry);
+        }
+    }
+
+    /**
+     *
+     * @param calendarEntry
+     */
+    private void checkforSearchCriteriaAndPublish(CalendarEntry calendarEntry){
+        if (search.isEmpty())
+            publishProgress(calendarEntry);
+        else{
+            if (search.equals(calendarEntry.getVagNumber()))
+                checkforSearchCriteriaAndPublish(calendarEntry);
         }
     }
 
