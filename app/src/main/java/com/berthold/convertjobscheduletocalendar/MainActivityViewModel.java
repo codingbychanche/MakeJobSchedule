@@ -2,16 +2,20 @@ package com.berthold.convertjobscheduletocalendar;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import CalendarMaker.CalendarEntry;
 import CalendarMaker.MakeCalendar;
 
+/**
+ * Main activity's view model.
+ */
 public class MainActivityViewModel extends ViewModel {
 
     // Data
@@ -25,7 +29,20 @@ public class MainActivityViewModel extends ViewModel {
     private boolean showValid = false;
     private boolean showInvalid = false;
     private String currentCourseNumberDisplayed, currentVAGNumberDisplayed;
-    private String currentSearchQuery="";
+    private String currentSearchQuery = "";
+
+    // --------------------------------------------- Live data ------------------------------------------------------------------
+    /**
+     * Calendars revision date.
+     */
+    public MutableLiveData<String> calendarsRevisionDateAndTime;
+
+    public MutableLiveData<String> calendarsRevisionDateAndTime() {
+        if (calendarsRevisionDateAndTime == null)
+            calendarsRevisionDateAndTime = new MutableLiveData<>();
+        return calendarsRevisionDateAndTime;
+    }
+    // ----------------------------------------------------------------------------------------------------------------------------
 
     /**
      * Initializes the current job schedule.
@@ -68,11 +85,145 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     /**
-     * @return The curent job schedule list, filtered as specified in the current filter settings.
+     * @return The current job schedule list, filtered as specified in the current filter settings.
      */
     public List<CalendarEntry> getJobScheduleListData() {
         return jobScheduleListData;
     }
+
+    /**
+     * Returns a list of all courses in this calendar and their associated
+     * VAG-numbers.
+     *
+     * @param courseNumber If a course number is passed, return only this course.
+     * @return List of course numbers and their associated VAG- numbers.
+     */
+    public List<String> getAllVAGNumbers(String courseNumber) {
+        return mycalendar.getCourseList();
+    }
+
+    //------------------- The following methods are called sequentially in order to filter the list according to the users settings ------------------------------
+    /**
+     * Read and parse a job schedule file.
+     * <p>
+     * Gets either all or only future events.
+     *
+     * @param pathToCurrentCalendarFile
+     * @return True is the file could be read, false if there was an i/o error...
+     */
+    public boolean readAndParseJobSchedule(InputStream pathToCurrentCalendarFile, String search) {
+
+        getJobScheduleListData().clear();
+
+        List<CalendarEntry> rawCalendar = new ArrayList();
+        setMycalendar(new MakeCalendar(pathToCurrentCalendarFile));
+
+        // Get unsorted, unfiltered calendar
+        rawCalendar = getMyCalendar().getRawCalendar();
+        //getAndShowTodaysEvent(rawCalendar);
+
+        long currentTimeInMillisec = System.currentTimeMillis();
+
+        if (getMyCalendar().hasError()) {
+            String error = getMyCalendar().getErorrDescription();
+            Log.v("ERROR__", error);
+            return false;
+        } else {
+
+            String vagNumber = getCurrentVAGNumberDisplayed();
+
+            for (CalendarEntry calendarEntry : rawCalendar) {
+
+                Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
+
+                if (vagNumber.equals("*")) {
+                    if (isShowOnlyFutureEvents) {
+                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
+                            addEvent(calendarEntry, search);
+                    } else
+                        addEvent(calendarEntry, search);
+
+                } else if (calendarEntry.getVagNumber().equals(vagNumber)) {
+                    if (isShowOnlyFutureEvents) {
+                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
+                            addEvent(calendarEntry, search);
+                    } else
+                        addEvent(calendarEntry, search);
+                }
+            }
+        }
+
+        //
+        // Publish revision date and time via the associated observer
+        //
+        String revisionDate = getMyCalendar().getCalendarRevisionDate();
+        String revisionTime = getMyCalendar().getCalendarRevisionTime();
+        String revisionDateAndTime=revisionDate+" // "+revisionTime;
+        calendarsRevisionDateAndTime.postValue(revisionDateAndTime);
+
+        return true;
+    }
+
+    /**
+     * Checks calendar entries according to the users filter settigs.
+     *
+     * @param calendarEntry Inside the view model: jobScheduleListData  Holding calendar entries currently visible to the user.
+     */
+    private void addEvent(CalendarEntry calendarEntry, String search) {
+
+        if (getShowAllEvents()) {
+            publishEvent(calendarEntry, search);
+        }
+
+        if (getShowValid()) {
+            if (calendarEntry.isValidEntry)
+                publishEvent(calendarEntry, search);
+        }
+
+        if (getShowInvalid()) {
+            if (!calendarEntry.isValidEntry)
+                publishEvent(calendarEntry, search);
+        }
+    }
+
+    /**
+     * Takes the already filtered entry and checks if the users search criteria
+     * apply and if so, finally adds them to the list of events to be displayed.
+     *
+     * @param calendarEntry
+     * @param search
+     */
+    public void publishEvent(CalendarEntry calendarEntry, String search) {
+        if (search.isEmpty())
+            getJobScheduleListData().add(calendarEntry);
+        else {
+            //
+            // from here we check if the query given matches any of the fields of the calendar
+            // and if so, all matching entrys are added..
+            //
+            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.locationPattern, search)) {
+                if (calendarEntry.getLocation().equals(search))
+                    getJobScheduleListData().add(calendarEntry);
+            }
+            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.vagNumberPattern, search)) {
+                if (calendarEntry.getVagNumber().equals(search))
+                    getJobScheduleListData().add(calendarEntry);
+            }
+            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.courseNumberPattern, search)) {
+                if (calendarEntry.getCourseNumber().equals(search))
+                    getJobScheduleListData().add(calendarEntry);
+            }
+            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.typePattern, search)) {
+                if (calendarEntry.getType().equals(search))
+                    getJobScheduleListData().add(calendarEntry);
+            }
+            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.datePattern, search)) {
+                if (calendarEntry.getDate().equals(search))
+                    getJobScheduleListData().add(calendarEntry);
+            }
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      * Returns the version from the app's Google Play store listing...
@@ -92,18 +243,34 @@ public class MainActivityViewModel extends ViewModel {
         return latest;
     }
 
-    /**
-     * Returns a list of all courses in this calendar and their associated
-     * VAG-numbers.
-     *
-     * @param courseNumber If a course number is passed, return only this course.
-     * @return List of course numbers and their associated VAG- numbers.
-     */
-    public List<String> getAllVAGNumbers(String courseNumber) {
-        return mycalendar.getCourseList();
+    public String getCurrentVAGNumberDisplayed() {
+        if (currentVAGNumberDisplayed == null)
+            return "*";
+        else
+            return currentVAGNumberDisplayed;
     }
 
+    /**
+     * Get search query.
+     *
+     * @return The search query currently entered inside the search view inside the action bar.
+     */
+    public String getCurrentSearchQuery() {
+        return currentSearchQuery;
+    }
+
+    /**
+     * Set search query.
+     *
+     * @param currentSearchQuery The current search query entered inside the search view inside of the action bar.
+     */
+    public void setCurrentSearchQuery(String currentSearchQuery) {
+        this.currentSearchQuery = currentSearchQuery;
+    }
+
+    //
     // Filter settings
+    //
     public void setShowOnlyFutureEvents(boolean state) {
         isShowOnlyFutureEvents = state;
     }
@@ -148,18 +315,5 @@ public class MainActivityViewModel extends ViewModel {
         currentVAGNumberDisplayed = v;
     }
 
-    public String getCurrentVAGNumberDisplayed() {
-        if (currentVAGNumberDisplayed==null)
-            return "*";
-        else
-            return currentVAGNumberDisplayed;
-    }
 
-    public String getCurrentSearchQuery() {
-        return currentSearchQuery;
-    }
-
-    public void setCurrentSearchQuery(String currentSearchQuery) {
-        this.currentSearchQuery = currentSearchQuery;
-    }
 }

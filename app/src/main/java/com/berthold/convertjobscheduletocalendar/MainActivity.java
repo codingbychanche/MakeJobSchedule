@@ -4,10 +4,12 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,6 +39,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Observable;
 
 import CalendarMaker.*;
 import berthold.filedialogtool.FileDialog;
@@ -140,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                         //
                         Uri uri;
                         uri = result.getData().getData();
-                        readAndParseJobSchedule(getCalendarFilesInputStream(uri), mainActivityViewModel.getCurrentSearchQuery());
+                        mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(uri), mainActivityViewModel.getCurrentSearchQuery());
                         savePathToCurrentCalendarFileToSp(uri);
                     }
                 }
@@ -206,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // If so, proceed, if not, open the file dialog tool for the user allowing
         // him to pick a suitable file. If permissions are ot granted yet, ask the user
         // to do so.
-        if (!readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery())) {
+        if (!mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery())) {
 
             //
             // Check for permissions.
@@ -271,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                         mainActivityViewModel.setShowValid(true);
                         break;
                 }
-                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
+                mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
                 jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
@@ -283,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mainActivityViewModel.setShowOnlyFutureEvents(isChecked);
-                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
+                mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
                 jobScheduleListAdapter.notifyDataSetChanged();
             }
         });
@@ -292,8 +295,21 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
 
         // refresh
-        readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
+        mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
 
+        //------------------------------- Live data observers -------------------------------------------------------------------
+        /**
+         * Adds the current calendars revision date an time to the action bars subtitle
+         * each time the calendar was updated.
+         */
+        final Observer<String> revsionDateAndTimeObserver = new Observer<String>() {
+            @Override
+            public void onChanged(String revisionDate) {
+                getSupportActionBar().setSubtitle(revisionDate);
+                Log.v("OBSERVER",revisionDate+" UPDATED");
+            }
+        };
+        mainActivityViewModel.calendarsRevisionDateAndTime.observe(this, revsionDateAndTimeObserver);
     }
 
     /**
@@ -377,127 +393,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         super.onResume();
     }
 
-    //------------------- The folowing methods are called sequentially in order to filter the list according to the users settings ------------------------------
-    /**
-     * Read and parse a job schedule file.
-     *
-     * Gets either all or only future events.
-     *
-     * @param pathToCurrentCalendarFile
-     * @return True is the file could be read, false if there was an i/o error...
-     */
-    private boolean readAndParseJobSchedule(InputStream pathToCurrentCalendarFile, String search) {
-
-        mainActivityViewModel.getJobScheduleListData().clear();
-        jobScheduleListAdapter.notifyDataSetChanged();
-
-        List<CalendarEntry> rawCalendar = new ArrayList();
-        mainActivityViewModel.setMycalendar(new MakeCalendar(pathToCurrentCalendarFile));
-
-        // Get unsorted, unfiltered calendar
-        rawCalendar = mainActivityViewModel.getMyCalendar().getRawCalendar();
-        getAndShowTodaysEvent(rawCalendar);
-
-        long currentTimeInMillisec = System.currentTimeMillis();
-
-        if (mainActivityViewModel.getMyCalendar().hasError()) {
-            String error = mainActivityViewModel.getMyCalendar().getErorrDescription();
-            Log.v("ERROR__", error);
-            return false;
-        } else {
-
-            String vagNumber = mainActivityViewModel.getCurrentVAGNumberDisplayed();
-
-            for (CalendarEntry calendarEntry : rawCalendar) {
-
-                Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
-
-                if (vagNumber.equals("*")) {
-                    if (showOnlyFutureEventsView.isChecked()) {
-                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
-                            addEvent(calendarEntry, search);
-                    } else
-                        addEvent(calendarEntry, search);
-
-                } else if (calendarEntry.getVagNumber().equals(vagNumber)) {
-                    if (showOnlyFutureEventsView.isChecked()) {
-                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
-                            addEvent(calendarEntry, search);
-                    } else
-                        addEvent(calendarEntry, search);
-                }
-            }
-        }
-        jobScheduleListAdapter.notifyDataSetChanged();
-
-        String revisionDate = mainActivityViewModel.getMyCalendar().getCalendarRevisionDate();
-        String revisionTime = mainActivityViewModel.getMyCalendar().getCalendarRevisionTime();
-        getSupportActionBar().setSubtitle(revisionDate + "//" + revisionTime);
-
-        return true;
-    }
-
-    /**
-     * Checks calendar entries according to the users filter settigs.
-     *
-     * @param calendarEntry Inside the view model: jobScheduleListData  Holding calendar entries currently visible to the user.
-     */
-    private void addEvent(CalendarEntry calendarEntry, String search) {
-
-        if (mainActivityViewModel.getShowAllEvents()) {
-            publishEvent(calendarEntry, search);
-        }
-
-        if (mainActivityViewModel.getShowValid()) {
-            if (calendarEntry.isValidEntry)
-                publishEvent(calendarEntry, search);
-        }
-
-        if (mainActivityViewModel.getShowInvalid()) {
-            if (!calendarEntry.isValidEntry)
-                publishEvent(calendarEntry, search);
-        }
-    }
-
-    /**
-     * Takes the already filtered entry and checks if the users search criteria
-     * apply and if so, finally adds them to the list of events to be displayed.
-     *
-     * @param calendarEntry
-     * @param search
-     */
-    public void publishEvent(CalendarEntry calendarEntry, String search) {
-        if (search.isEmpty())
-            mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
-        else {
-            //
-            // from here we check if the query given matches any of the fields of the calendar
-            // and if so, all matching entrys are added..
-            //
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.locationPattern, search)) {
-                if (calendarEntry.getLocation().equals(search))
-                    mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
-            }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.vagNumberPattern, search)) {
-                if (calendarEntry.getVagNumber().equals(search))
-                    mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
-            }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.courseNumberPattern, search)) {
-                if (calendarEntry.getCourseNumber().equals(search))
-                    mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
-            }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.typePattern, search)) {
-                if (calendarEntry.getType().equals(search))
-                    mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
-            }
-            if (mainActivityViewModel.getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.datePattern, search)) {
-                if (calendarEntry.getDate().equals(search))
-                    mainActivityViewModel.getJobScheduleListData().add(calendarEntry);
-            }
-        }
-    }
-    //------------------------------------------------------------------------------------------------------------------------------------------------------------
-
     /**
      * Callback invoked when the permissions granted dialog was closed.
      *
@@ -557,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), query);
+                mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), query);
                 mainActivityViewModel.setCurrentSearchQuery(query);
                 return false;
             }
@@ -580,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             @Override
             public boolean onClose() {
                 searchView.setQuery("", true);
-                readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), "");
+                mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), "");
                 mainActivityViewModel.setCurrentSearchQuery("");
                 return false;
             }
