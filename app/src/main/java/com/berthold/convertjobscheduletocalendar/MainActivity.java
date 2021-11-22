@@ -57,8 +57,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     // File system
     //public static File workingDir;
     //public String appDir = "/Meine_Einsatzpläne";       // App's working dir..
-    private static final int ID_FILE_DIALOG = 1;
-    private static final boolean OVERRIDE_LAST_PATH_VISITED = false;
+    //private static final int ID_FILE_DIALOG = 1;
+    //private static final boolean OVERRIDE_LAST_PATH_VISITED = false;
     //--------- -----------------------------------------------------------------------
 
     // Permission request callback
@@ -125,6 +125,27 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         Log.v("WORKINGDIR",workingDir.getPath());
         workingDir.mkdirs(); // Create dir, if it does not already exist
         -----------------------------------------------------------------------------------------------------*/
+        //
+        // Callback for file Picker if using Android 11 or higher....
+        //
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            loadFileActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Log.v("RETURN_DATA_", result.getData().toString());
+
+                        // The result contains an uri which can be used to perform operations on the
+                        // document the user selected.
+                        //
+                        Uri uri;
+                        uri = result.getData().getData();
+                        readAndParseJobSchedule(getCalendarFilesInputStream(uri), mainActivityViewModel.getCurrentSearchQuery());
+                        savePathToCurrentCalendarFileToSp(uri);
+                    }
+                }
+            });
+        }
 
         // UI
         radioGroupViewFilters = findViewById(R.id.radioGroupViewFilter);
@@ -162,29 +183,23 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         //
         // If permissions dialog is shown, wee need to notify the routine
         // which checks for updates, not to show the update info dialog...
-        //Boolean permissionDialogIsNotShown = true;
+        // Boolean permissionDialogIsNotShown = true;
 
-        //
-        // Callback for file Picker if using Android 11 or higher....
-        //
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            loadFileActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Log.v("RETURN_DATA_", result.getData().toString());
-
-                        // The result contains an uri which can be used to perform operations on the
-                        // document the user selected.
-                        //
-                        Uri uri;
-                        uri = result.getData().getData();
-                        readAndParseJobSchedule(getCalendarFilesInputStream(uri), mainActivityViewModel.getCurrentSearchQuery());
-                        savePathToCurrentCalendarFileToSp(uri);
-                    }
-                }
-            });
-        }
+            /*
+            // OLD, not very clean solution. Kept it here to show how not to do it!
+            //
+            // Permissions to access internal filesystem ('/SDCard')?
+            //
+            if (permissionIsDenied("ACTION_READ_INTERNAL_STORAGE")) {
+                permissionDialogIsNotShown = false;
+                String dialogText = getResources().getString(R.string.ask_for_device_permissions_file_system);
+                String ok = getResources().getString(R.string.PERM_OK_Button);
+                String cancel = getResources().getString(R.string.PERM_CANCEL_BUTTON);
+                showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
+            } else {
+                openFileDialog();
+            }
+            */
 
         // Was a calendar file opened previously?
         //
@@ -203,24 +218,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             // Opens a system dialog requesting permissions, if none of the
             // permissions asked for were granted already....
             requestPermissions(perms, permsRequestCode);
-
             openFileDialog();
-
-            /*
-            // OLD, not very clean solution. Kept it here to show how not to do it!
-            //
-            // Permissions to access internal filesystem ('/SDCard')?
-            //
-            if (permissionIsDenied("ACTION_READ_INTERNAL_STORAGE")) {
-                permissionDialogIsNotShown = false;
-                String dialogText = getResources().getString(R.string.ask_for_device_permissions_file_system);
-                String ok = getResources().getString(R.string.PERM_OK_Button);
-                String cancel = getResources().getString(R.string.PERM_CANCEL_BUTTON);
-                showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
-            } else {
-                openFileDialog();
-            }
-            */
         }
 
         //
@@ -379,10 +377,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         super.onResume();
     }
 
-    //--------------------------------------------------------------------------------------------------------------------------------------------------- ----------
-
+    //------------------- The folowing methods are called sequentially in order to filter the list according to the users settings ------------------------------
     /**
      * Read and parse a job schedule file.
+     *
+     * Gets either all or only future events.
      *
      * @param pathToCurrentCalendarFile
      * @return True is the file could be read, false if there was an i/o error...
@@ -439,8 +438,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * Add a calendar entry to the calendar according
-     * to view options selected by the user
+     * Checks calendar entries according to the users filter settigs.
      *
      * @param calendarEntry Inside the view model: jobScheduleListData  Holding calendar entries currently visible to the user.
      */
@@ -459,12 +457,11 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             if (!calendarEntry.isValidEntry)
                 publishEvent(calendarEntry, search);
         }
-
     }
 
     /**
      * Takes the already filtered entry and checks if the users search criteria
-     * apply....
+     * apply and if so, finally adds them to the list of events to be displayed.
      *
      * @param calendarEntry
      * @param search
@@ -552,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
 
-        searchView=(SearchView) menu.findItem(R.id.search_field).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.search_field).getActionView();
 
         // @rem:Shows how to create a search view and how to use it
         // The search view...
@@ -875,10 +872,12 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             //
             // For Android vesions < 11
             //
+            /*
             Intent i = new Intent(MainActivity.this, FileDialog.class);
             i.putExtra(FileDialog.MY_TASK_FOR_TODAY_IS, FileDialog.GET_FILE_NAME_AND_PATH);
             i.putExtra(FileDialog.OVERRIDE_LAST_PATH_VISITED, OVERRIDE_LAST_PATH_VISITED);
             startActivityForResult(i, ID_FILE_DIALOG);
+            */
         } else {
             //
             // For Android versions =>11
@@ -975,7 +974,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * Retrieves the input stream associatedwith the calendar file.
+     * Retrieves the input stream associated with the calendar file.
      *
      * @param uri
      * @return Input stream for the associated calendar file.
