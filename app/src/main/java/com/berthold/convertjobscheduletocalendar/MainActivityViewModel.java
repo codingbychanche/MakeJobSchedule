@@ -37,7 +37,7 @@ public class MainActivityViewModel extends ViewModel {
      */
     public MutableLiveData<String> calendarsRevisionDateAndTime;
 
-    public MutableLiveData<String> calendarsRevisionDateAndTime() {
+    public MutableLiveData<String> calendarWasupdated() {
         if (calendarsRevisionDateAndTime == null)
             calendarsRevisionDateAndTime = new MutableLiveData<>();
         return calendarsRevisionDateAndTime;

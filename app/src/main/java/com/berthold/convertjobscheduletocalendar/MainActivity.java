@@ -39,10 +39,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Observable;
 
 import CalendarMaker.*;
-import berthold.filedialogtool.FileDialog;
 
 /**
  * Reads a text file, checks for valid calendar entries and writes them to the devices calendar.
@@ -106,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
 
+        //--------------------------------------------------------- ViewModel ------------------------
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+
         /*--------------------- When target SDK is below 30 (Android 10 or less) ----------------------
         // File system
         //
@@ -166,9 +167,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         typeView = findViewById(R.id.type);
         holidayView = findViewById(R.id.holiday_remark);
 
-        // ViewModel
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
-
         // Filter settings
         selectAllView.setChecked(mainActivityViewModel.getShowAllEvents());
 
@@ -203,6 +201,24 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
                 openFileDialog();
             }
             */
+
+        //------------------------------- Live data observers -------------------------------------------------------------------
+        /**
+         * Adds the current calendars revision date an time to the action bars subtitle
+         * each time the calendar was updated.
+         *
+         * Also: Enter all task needed to be done, when a new calendar was restored
+         * from the filesystem.
+         */
+        final Observer<String> calendarWasUpdatedObserver = new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable final String revisionDate) {
+                getSupportActionBar().setSubtitle(revisionDate);
+                jobScheduleListAdapter.notifyDataSetChanged();
+                getAndShowTodaysEvent();
+            }
+        };
+        mainActivityViewModel.calendarWasupdated().observe(this, calendarWasUpdatedObserver);
 
         // Was a calendar file opened previously?
         //
@@ -291,25 +307,8 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
             }
         });
 
-        // Update today's event
-        getAndShowTodaysEvent(mainActivityViewModel.getMyCalendar().getRawCalendar());
-
         // refresh
         mainActivityViewModel.readAndParseJobSchedule(getCalendarFilesInputStream(restorePathOfCurrentCalendarFileFromSp()), mainActivityViewModel.getCurrentSearchQuery());
-
-        //------------------------------- Live data observers -------------------------------------------------------------------
-        /**
-         * Adds the current calendars revision date an time to the action bars subtitle
-         * each time the calendar was updated.
-         */
-        final Observer<String> revsionDateAndTimeObserver = new Observer<String>() {
-            @Override
-            public void onChanged(String revisionDate) {
-                getSupportActionBar().setSubtitle(revisionDate);
-                Log.v("OBSERVER",revisionDate+" UPDATED");
-            }
-        };
-        mainActivityViewModel.calendarsRevisionDateAndTime.observe(this, revsionDateAndTimeObserver);
     }
 
     /**
@@ -750,7 +749,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      * <p>
      * Updates the associated fragment.
      */
-    private void getAndShowTodaysEvent(List<CalendarEntry> rawCalendar) {
+    private void getAndShowTodaysEvent() {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction ft = manager.beginTransaction();
         ft.setReorderingAllowed(true);
