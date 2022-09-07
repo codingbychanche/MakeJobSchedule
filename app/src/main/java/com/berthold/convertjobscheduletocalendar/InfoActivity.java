@@ -64,6 +64,7 @@ public class InfoActivity extends AppCompatActivity {
 
         // Check if there is an update available
         currentVersion = GetThisAppsVersion.thisVersion(getApplicationContext());
+
         getSupportActionBar().setSubtitle("Version:" + currentVersion);
 
         // Load html...
