@@ -35,6 +35,13 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.UpdateAvailability;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -241,31 +248,46 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         }
 
         //
-        // Check if there is a newer version of this app available at the play store.
+        // Check if there is a newer version of this app available at the play store
         //
-        //if (showUpdateInfo() && permissionDialogIsNotShown) {
-        if (showUpdateInfo()) {
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(10000);
-                    } catch (Exception e) {
-                    }
+        if (CheckForNetwork.isNetworkAvailable(getApplicationContext())) {
 
-                    String currentVersion = GetThisAppsVersion.thisVersion(getApplicationContext());
-                    String latestVersionInGooglePlay = mainActivityViewModel.getAppVersionfromGooglePlay(getApplicationContext());
+            if (showUpdateInfo()) {
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(10000);
+                        } catch (Exception e) {
+                        }
+                        String currentVersion = GetThisAppsVersion.thisVersion(getApplicationContext());
 
-                    if (!latestVersionInGooglePlay.equals(currentVersion)) {
-                        saveTimeUpdateInfoLastOpened();
-                        String dialogText = getResources().getString(R.string.dialog_new_version_available) + " " + latestVersionInGooglePlay;
-                        String ok = getResources().getString(R.string.do_update_confirm_button);
-                        String cancel = getResources().getString(R.string.no_udate_button);
-                        showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
+                        String latestVersionInGooglePlay;
+                        VersionChecker vc = new VersionChecker();
+
+                        try {
+                            latestVersionInGooglePlay = vc.execute().get();
+                        } catch (Exception e) {
+                            latestVersionInGooglePlay = "-";
+                        }
+
+                        // Only open when connection to Play Store was successful and
+                        // the latest version Info could be retrieved.....
+                        if (latestVersionInGooglePlay != "-") {
+                            if (!latestVersionInGooglePlay.equals(currentVersion)) {
+                                saveTimeUpdateInfoLastOpened();
+                                String dialogText = getResources().getString(R.string.dialog_new_version_available) + " " + latestVersionInGooglePlay;
+                                String ok = getResources().getString(R.string.do_update_confirm_button);
+                                String cancel = getResources().getString(R.string.no_udate_button);
+                                showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
+                            }
+                        }
                     }
-                }
-            });
-            t.start();
+                });
+                t.start();
+            } else
+                // If there is no connection to an active network, do not show anything.....
+                Log.v("NETWORKNETWORK_", "No Net");
         }
 
         //

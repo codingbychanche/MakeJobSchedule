@@ -1,6 +1,10 @@
 package com.berthold.convertjobscheduletocalendar;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -9,6 +13,8 @@ import androidx.lifecycle.ViewModel;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import CalendarMaker.CalendarEntry;
 import CalendarMaker.MakeCalendar;
@@ -102,7 +108,12 @@ public class MainActivityViewModel extends ViewModel {
         return mycalendar.getCourseList();
     }
 
+    //
+    //
     //------------------- The following methods are called sequentially in order to filter the list according to the users settings ------------------------------
+    //
+    //
+
     /**
      * Read and parse a job schedule file.
      * <p>
@@ -126,30 +137,18 @@ public class MainActivityViewModel extends ViewModel {
 
         if (getMyCalendar().hasError()) {
             String error = getMyCalendar().getErorrDescription();
-            Log.v("ERROR__", error);
+            // todo Display error message
             return false;
         } else {
 
-            String vagNumber = getCurrentVAGNumberDisplayed();
-
             for (CalendarEntry calendarEntry : rawCalendar) {
-
                 Long currentEventTimeInMillisec = calendarEntry.getEventTimeInMillisec();
 
-                if (vagNumber.equals("*")) {
-                    if (isShowOnlyFutureEvents) {
-                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
-                            addEvent(calendarEntry, search);
-                    } else
+                if (isShowOnlyFutureEvents) {
+                    if (currentEventTimeInMillisec >= currentTimeInMillisec)
                         addEvent(calendarEntry, search);
-
-                } else if (calendarEntry.getVagNumber().equals(vagNumber)) {
-                    if (isShowOnlyFutureEvents) {
-                        if (currentEventTimeInMillisec >= currentTimeInMillisec)
-                            addEvent(calendarEntry, search);
-                    } else
-                        addEvent(calendarEntry, search);
-                }
+                } else
+                    addEvent(calendarEntry, search);
             }
         }
 
@@ -158,14 +157,14 @@ public class MainActivityViewModel extends ViewModel {
         //
         String revisionDate = getMyCalendar().getCalendarRevisionDate();
         String revisionTime = getMyCalendar().getCalendarRevisionTime();
-        String revisionDateAndTime=revisionDate+" // "+revisionTime;
+        String revisionDateAndTime = revisionDate + " // " + revisionTime;
         calendarsRevisionDateAndTime.postValue(revisionDateAndTime);
 
         return true;
     }
 
     /**
-     * Checks calendar entries according to the users filter settigs.
+     * Checks calendar entries according to the users filter settings.
      *
      * @param calendarEntry Inside the view model: jobScheduleListData  Holding calendar entries currently visible to the user.
      */
@@ -194,36 +193,20 @@ public class MainActivityViewModel extends ViewModel {
      * @param search
      */
     public void publishEvent(CalendarEntry calendarEntry, String search) {
+
         if (search.isEmpty())
             getJobScheduleListData().add(calendarEntry);
         else {
-            //
-            // from here we check if the query given matches any of the fields of the calendar
-            // and if so, all matching entrys are added..
-            //
-            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.locationPattern, search)) {
-                if (calendarEntry.getLocation().equals(search))
-                    getJobScheduleListData().add(calendarEntry);
-            }
-            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.vagNumberPattern, search)) {
-                if (calendarEntry.getVagNumber().equals(search))
-                    getJobScheduleListData().add(calendarEntry);
-            }
-            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.courseNumberPattern, search)) {
-                if (calendarEntry.getCourseNumber().equals(search))
-                    getJobScheduleListData().add(calendarEntry);
-            }
-            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.typePattern, search)) {
-                if (calendarEntry.getType().equals(search))
-                    getJobScheduleListData().add(calendarEntry);
-            }
-            if (getMyCalendar().checkIfRegexPatternMatches(MakeCalendar.datePattern, search)) {
-                if (calendarEntry.getDate().equals(search))
-                    getJobScheduleListData().add(calendarEntry);
+            Pattern p = Pattern
+                    .compile("(?i)(" + search + ")");
+            Matcher s = p.matcher(calendarEntry.getOrgiriginalEntry());
+
+            if (s.find()) {
+                getJobScheduleListData().add(calendarEntry);
             }
         }
     }
-    //------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      * Returns the version from the app's Google Play store listing...

@@ -1,4 +1,4 @@
-package berthold.beamcalc;
+package com.berthold.convertjobscheduletocalendar;
 
 /*
  * CheckForNetwork.java
@@ -14,6 +14,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 
 //@rem: Shows how to check if there is an active network connected to this device@@
+
 /**
  * Checks whether there is an active network connected or not.
  *

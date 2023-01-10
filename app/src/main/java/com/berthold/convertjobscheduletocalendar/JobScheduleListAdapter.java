@@ -80,6 +80,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         TextView loctionView = holder.mView.findViewById(R.id.location);
         TextView typeView = holder.mView.findViewById(R.id.type);
         TextView holidayView = holder.mView.findViewById(R.id.holiday_remark);
+        TextView travelInfo = holder.mView.findViewById(R.id.travel_info);
 
         //
         // Populate views
@@ -88,7 +89,7 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         if (jobScheduleListData.get(position).isChildOfAnotherEntry) {
             dayOfWeekView.setText(" ");
             dateView.setText(" ");
-        }  else {
+        } else {
             dayOfWeekView.setText(context.getString(dayNameResource));
             dateView.setText(jobScheduleListData.get(position).getDate());
         }
@@ -107,6 +108,9 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
         // Set background color and options according to the status of the entry.
         final View backgroundView = holder.mView.findViewById(R.id.calendar_entry_view);
 
+        if (jobScheduleListData.get(position).isWeekend) // toDo Lib seem not to detect weekends correctly...
+            backgroundView.setBackgroundResource(R.drawable.background_gradient_yellow);
+
         if (jobScheduleListData.get(position).isValidEntry) {
 
             //@rem:Shows how one can set the background resource of a view,(e.g. a custom drawable from an xml- file@@
@@ -124,6 +128,10 @@ public class JobScheduleListAdapter extends RecyclerView.Adapter<JobScheduleList
             backgroundView.setBackgroundResource(R.drawable.background_gradient_red);
             //addCalendarEntryView.setVisibility(View.GONE);
         }
+
+
+        travelInfo.setText(jobScheduleListData.get(position).getTravelDay());
+
     }
 
     // Return the size of your dataset (invoked by the layout manager)
