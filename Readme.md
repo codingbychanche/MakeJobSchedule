@@ -9,10 +9,10 @@ Creates calendar entries for your devices calendar app from a plain text file co
     ![](Shot_1.png)
   </td>
   <td>
-  ![](Shot_2.png)
+    ![](Shot_2.png)
   </td>
-  </tr>
-  </table>  
+</tr>
+</table>  
 
 ![](Shot_3.png)
 
