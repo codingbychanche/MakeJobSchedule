@@ -52,9 +52,9 @@
     <string name="app_title">Einsatzplan</string>
     <string name="version_text">Version:</string>
 
-    <string name="version_info_update_available">
+    <string name="version_info_update_available_short">
      <![CDATA[
-        Es ist eine neuere Version dieser App im Google Play Store verfügbar. Einsatzplan Version:
+        Es ist eine neuere Version dieser App im Google Play Store verfügbar.
         ]]>
     </string>
 
@@ -72,40 +72,8 @@
         <p>Wenn Sie möchten, dann können sie von hier aus direkt in den <i>Google Play Store</i> wechseln und das Update durchführen.</p>
 
         <p>Ihre Einstellung und gespeicherten Daten bleiben erhalten.</p>
-
-        Neue Version:]]>
+        ]]>
     </string>
-
-
-
-
-    <!--Ask for device permissions -->
-    <!-- @rem:Shows hot to include html- strings into a string resource file@@ -->
-    <string name="ask_for_device_permissions_file_system">
-
-
-
-        <![CDATA[<p><b>Fehlende Berechtigung</b></p>
-
-    <p>Diese App darf nicht auf ihr internes Dateisystem zugreifen.
-        Dabei handelt es sich um die Inhalte des Ordners <i>/SDCard</i>.</p>
-
-        <p>Die App benötigt die Berechtigung damit sie ihre Einsatzpläne lesen kann. Schreibzugriffe wer!den nicht benötigt. Wenn Sie diesen Dialog bestätigen,
-        dann werden die Systemeinstellungen geöffnet.</p>
-
-        <p>Wählen Sie dort bitte den
-        Punkt <i>Berechtigungen</i> und tippen Sie auf <i>Permissions -> Storage</i>.</p>
-
-        Danach können Sie direkt zur App zurückkeheren indem Sie den <i>Back- Button</i> ihres Gerätes antippen.]]>
-    </string>
-
-    <string name="permission_denied">Sie habe die erforderliche Berechtigung verweigert. Wenn Sie das ändern möchten, dann starten Sie die App bitte erneut.</string>
-
-    <string name="PERM_OK_Button">Zulassen</string>
-    <string name="PERM_CANCEL_BUTTON">Nein</string>
-
-    <string name="do_update_confirm_button">Update</string>
-    <string name="no_udate_button">Nein,danke</string>
 
     <string name="no_network">
      <![CDATA[
@@ -113,9 +81,13 @@
         ]]>
     </string>
 
-    <string name="no_version_info_available">
-     <![CDATA[
-        Die aktuelle Version im Play Store konnte nicht ermittelt werden.
-        ]]>
-    </string>
+    <!--Ask for device permissions -->
+    <!-- @rem:Shows hot to include html- strings into a string resource file@@ -->
+
+    <string name="PERM_OK_Button">Zulassen</string>
+    <string name="PERM_CANCEL_BUTTON">Nein</string>
+
+    <string name="do_update_confirm_button">Update</string>
+    <string name="no_udate_button">Nein,danke</string>
+
 </resources>

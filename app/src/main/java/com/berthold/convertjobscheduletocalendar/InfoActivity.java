@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 
 import java.io.BufferedReader;
@@ -120,6 +121,7 @@ public class InfoActivity extends AppCompatActivity {
         });
         t.start();
 
+        /*
         //
         // Get this App's version from the play store...
         //
@@ -176,6 +178,7 @@ public class InfoActivity extends AppCompatActivity {
             }
         });
         t2.start();
+         */
 
         //
         // Play core library
@@ -184,22 +187,25 @@ public class InfoActivity extends AppCompatActivity {
         // todo: test of play core library
         // This is a test....
         //
-        final AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(getApplicationContext());
-        // Returns an intent object that you use to check for an update.
-        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-        appUpdateInfoTask.addOnSuccessListener(new OnSuccessListener<AppUpdateInfo>() {
-            @Override
-            public void onSuccess(AppUpdateInfo result) {
-                if (result.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                    Toast.makeText(getApplicationContext(), "Update available.....", Toast.LENGTH_LONG).show();
-                    Log.v("UPDATEUPDATE:", result.availableVersionCode() + "");
-                } else {
-                    Toast.makeText(getApplicationContext(), "No Update available.....", Toast.LENGTH_LONG).show();
-                    Log.v("UPDATEUPDATE_1:", "No Update");
-                    Log.v("UPDATEUPDATE_2:", result.availableVersionCode() + "v");
+        if (CheckForNetwork.isNetworkAvailable(getApplicationContext())) {
+
+            final AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(getApplicationContext());
+            // Returns an intent object that you use to check for an update.
+            final Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+            appUpdateInfoTask.addOnSuccessListener(new OnSuccessListener<AppUpdateInfo>() {
+                @Override
+                public void onSuccess(AppUpdateInfo result) {
+                    if (result.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                        updateInfoView.setText(HtmlCompat.fromHtml(getResources().getText(R.string.version_info_update_available_short) +"", 0));
+
+                    } else {
+                        updateInfoView.setText(getResources().getText(R.string.version_info_ok));
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            updateInfoView.setText(getResources().getText(R.string.no_network));
+        }
     }
 
     /**

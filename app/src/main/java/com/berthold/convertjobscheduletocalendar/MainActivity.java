@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -186,29 +187,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         jobScheduleListAdapter = new JobScheduleListAdapter(mainActivityViewModel.getJobScheduleListData(), this, context);
         jobScheduleListRecyclerView.setAdapter(jobScheduleListAdapter);
 
-        // From here on the app checks if it has all required permissions and
-        // if there are updates available.
-        //
-        // If permissions dialog is shown, wee need to notify the routine
-        // which checks for updates, not to show the update info dialog...
-        // Boolean permissionDialogIsNotShown = true;
-
-            /*
-            // OLD, not very clean solution. Kept it here to show how not to do it!
-            //
-            // Permissions to access internal filesystem ('/SDCard')?
-            //
-            if (permissionIsDenied("ACTION_READ_INTERNAL_STORAGE")) {
-                permissionDialogIsNotShown = false;
-                String dialogText = getResources().getString(R.string.ask_for_device_permissions_file_system);
-                String ok = getResources().getString(R.string.PERM_OK_Button);
-                String cancel = getResources().getString(R.string.PERM_CANCEL_BUTTON);
-                showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
-            } else {
-                openFileDialog();
-            }
-            */
-
         //------------------------------- Live data observers -------------------------------------------------------------------
         /**
          * Adds the current calendars revision date an time to the action bars subtitle
@@ -251,43 +229,30 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // Check if there is a newer version of this app available at the play store
         //
         if (CheckForNetwork.isNetworkAvailable(getApplicationContext())) {
+            final AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(getApplicationContext());
+            // Returns an intent object that you use to check for an update.
+            final Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+            appUpdateInfoTask.addOnSuccessListener(new OnSuccessListener<AppUpdateInfo>() {
+                @Override
+                public void onSuccess(AppUpdateInfo result) {
 
-            if (showUpdateInfo()) {
-                Thread t = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(10000);
-                        } catch (Exception e) {
+                    if (result.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                        // If an update was not installed for some time, check when the last
+                        // update info was shown. We so not want to tire the user :-)
+                        if (showUpdateInfo()) {
+                            saveTimeUpdateInfoLastOpened();
+                            String dialogText = getResources().getString(R.string.dialog_new_version_available) + " ";
+                            String ok = getResources().getString(R.string.do_update_confirm_button);
+                            String cancel = getResources().getString(R.string.no_udate_button);
+                            showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
                         }
-                        String currentVersion = GetThisAppsVersion.thisVersion(getApplicationContext());
-
-                        String latestVersionInGooglePlay;
-                        VersionChecker vc = new VersionChecker();
-
-                        try {
-                            latestVersionInGooglePlay = vc.execute().get();
-                        } catch (Exception e) {
-                            latestVersionInGooglePlay = "-";
-                        }
-
-                        // Only open when connection to Play Store was successful and
-                        // the latest version Info could be retrieved.....
-                        if (latestVersionInGooglePlay != "-") {
-                            if (!latestVersionInGooglePlay.equals(currentVersion)) {
-                                saveTimeUpdateInfoLastOpened();
-                                String dialogText = getResources().getString(R.string.dialog_new_version_available) + " " + latestVersionInGooglePlay;
-                                String ok = getResources().getString(R.string.do_update_confirm_button);
-                                String cancel = getResources().getString(R.string.no_udate_button);
-                                showConfirmDialog(CONFIRM_DIALOG_CALLS_BACK_FOR_UPDATE, FragmentYesNoDialog.SHOW_AS_YES_NO_DIALOG, dialogText.toString(), ok, cancel);
-                            }
-                        }
+                    } else {
+                        // No update available, user does not need to know....
                     }
-                });
-                t.start();
-            } else
-                // If there is no connection to an active network, do not show anything.....
-                Log.v("NETWORKNETWORK_", "No Net");
+                }
+            });
+        } else {
+            // No Network, user does not need to know....
         }
 
         //
@@ -358,26 +323,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
      */
     @Override
     public void getDialogInput(int reqCode, String dialogTextEntered, String buttonPressed) {
-
-        //
-        // Grand permission?
-        //
-        if (reqCode == CONFIRM_DIALOG_CALLS_BACK_FOR_PERMISSIONS) {
-
-            // This is the old version of the permission checker
-            if (buttonPressed.equals(FragmentYesNoDialog.BUTTON_OK_PRESSED)) {
-
-                // @rem:Shows how to open the Android systems settings activity fro this app.
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                intent.setData(uri);
-                startActivity(intent);
-                //@@
-            } else {
-                String denied = getResources().getString(R.string.permission_denied);
-                Toast.makeText(MainActivity.this, denied, Toast.LENGTH_LONG).show();
-            }
-        }
 
         //
         // Update this app?
@@ -809,38 +754,6 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
     }
 
     /**
-     * File Dialog Tool callback.
-     * For SDK < Android 11 (HONEYCOMP)
-     *
-     * @param reqCode Code which idendifies the fileDialogTool as the returning activity
-     * @param resCode OK, error, etc...
-     * @param data    Selected path.
-     */
-    /*
-    @Override
-    protected void onActivityResult(int reqCode, int resCode, Intent data) {
-        super.onActivityResult(reqCode, resCode, data);
-
-        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.HONEYCOMB) {
-            if (resCode == RESULT_OK && reqCode == ID_FILE_DIALOG) {
-                if (data.hasExtra("path")) {
-
-                    String returnStatus = data.getExtras().getString(FileDialog.RETURN_STATUS);
-                    String pathSelected = data.getExtras().getString("path");
-
-                    Log.v("PATH_", pathSelected);
-
-                    if (returnStatus.equals(FileDialog.FOLDER_AND_FILE_PICKED)) {
-                        pathToCurrentCalendarFile = pathSelected;
-                        //readAndParseJobSchedule(pathToCurrentCalendarFile);
-                    }
-                }
-            }
-        }
-    }
-    */
-
-    /**
      * Saves timestamp when update info was shown and
      * a boolean set to true which tells us that the
      * info has been shown at least once.
@@ -877,7 +790,7 @@ public class MainActivity extends AppCompatActivity implements JobScheduleListAd
         // Time in Millisec. which has to be passed until update info is
         // allowed to be shown again since the  last time it
         // appeared on the screen;
-        int timeDiffUntilNextUpdateInfo = 8 * 60 * 60 * 1000; // Show once every eight hours.....
+        int timeDiffUntilNextUpdateInfo = 24 * 60 * 60 * 1000; // Show once every day.......
 
         Long lastTimeOpened = sharedPreferences.getLong("lastUpdateInfo", currentTime);
 
